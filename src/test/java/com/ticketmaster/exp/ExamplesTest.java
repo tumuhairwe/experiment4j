@@ -20,7 +20,7 @@ import com.ticketmaster.exp.publish.PrintStreamPublisher;
 import com.ticketmaster.exp.util.ReturnChoices;
 import com.ticketmaster.exp.util.SameWhens;
 import com.ticketmaster.exp.util.Selectors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
 import java.util.Objects;
@@ -49,7 +49,7 @@ public class ExamplesTest {
   }
 
   Function<Person, String> oldToName = (p) -> p.getFirstName() + " " + p.getLastName();
-  Function<Person, String> newToName = (p) -> String.format("%s %s", p.getFirstName(), p.getLastName());
+  Function<Person, String> newToName = (p) -> "%s %s".formatted(p.getFirstName(), p.getLastName());
 
   Person[] people = {
       new Person("George", "Washington"),

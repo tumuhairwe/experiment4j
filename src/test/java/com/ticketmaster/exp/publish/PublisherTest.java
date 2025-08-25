@@ -20,7 +20,7 @@ import com.ticketmaster.exp.MatchType;
 import com.ticketmaster.exp.Publisher;
 import com.ticketmaster.exp.Result;
 import com.ticketmaster.exp.TrialResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;

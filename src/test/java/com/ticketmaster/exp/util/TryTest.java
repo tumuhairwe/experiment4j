@@ -16,17 +16,14 @@
 
 package com.ticketmaster.exp.util;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class TryTest {
-  @Rule
-  public ExpectedException ex = ExpectedException.none();
 
   @Test
   public void testSuccessfulCallShouldReturnValue() throws Exception {
@@ -43,37 +40,34 @@ public class TryTest {
 
   @Test
   public void testFailingCallWillFailWithException() throws Exception {
-
-
-    // EXPECT
-    ex.expect(IllegalArgumentException.class);
-    ex.expectMessage("fail");
-
     // GIVEN
     Try<String> t = Try.of(null, new IllegalArgumentException("fail"));
 
-    // WHEN
-    t.call();
+    // WHEN + THEN
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, t::call);
+    assertEquals("fail", ex.getMessage());
   }
 
   @Test
   public void testAllValuesShouldFail() throws Exception {
-    // EXPECT
-    ex.expect(IllegalArgumentException.class);
-    ex.expectMessage("exactly one of value or exception must be non-null");
+    // WHEN + THEN
+    IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> Try.of("s", new IllegalArgumentException())
+    );
 
-    // WHEN
-    Try.of("s", new IllegalArgumentException());
+    assertEquals("exactly one of value or exception must be non-null", ex.getMessage());
   }
 
   @Test
   public void testAllNullShouldFail() throws Exception {
-    // EXPECT
-    ex.expect(IllegalArgumentException.class);
-    ex.expectMessage("exactly one of value or exception must be non-null");
+    // WHEN + THEN
+    IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> Try.of(null, null)
+    );
 
-    // WHEN
-    Try.of(null, null);
+    assertEquals("exactly one of value or exception must be non-null", ex.getMessage());
   }
 
   @Test
@@ -82,10 +76,10 @@ public class TryTest {
     Try<String> t = Try.of("s", null);
 
     // THEN
-    assertEquals(false, t.exception().isPresent());
-    assertEquals(true, t.value().isPresent());
-    assertEquals(true, t.isSuccess());
-    assertEquals(false, t.isFailure());
+    assertFalse(t.exception().isPresent());
+    assertTrue(t.value().isPresent());
+    assertTrue(t.isSuccess());
+    assertFalse(t.isFailure());
   }
 
   @Test
@@ -94,10 +88,10 @@ public class TryTest {
     Try<String> t = Try.of(null, new IllegalArgumentException());
 
     // THEN
-    assertEquals(true, t.exception().isPresent());
-    assertEquals(false, t.value().isPresent());
-    assertEquals(false, t.isSuccess());
-    assertEquals(true, t.isFailure());
+    assertTrue(t.exception().isPresent());
+    assertFalse(t.value().isPresent());
+    assertFalse(t.isSuccess());
+    assertTrue(t.isFailure());
   }
 
   @Test
@@ -109,10 +103,10 @@ public class TryTest {
     Try<String> t = Try.from(c);
 
     // THEN
-    assertEquals(false, t.exception().isPresent());
-    assertEquals(true, t.value().isPresent());
-    assertEquals(true, t.isSuccess());
-    assertEquals(false, t.isFailure());
+    assertFalse(t.exception().isPresent());
+    assertTrue(t.value().isPresent());
+    assertTrue(t.isSuccess());
+    assertFalse(t.isFailure());
   }
 
   @Test
@@ -126,49 +120,45 @@ public class TryTest {
     Try<String> t = Try.from(c);
 
     // THEN
-    assertEquals(true, t.exception().isPresent());
-    assertEquals(false, t.value().isPresent());
-    assertEquals(false, t.isSuccess());
-    assertEquals(true, t.isFailure());
+    assertTrue(t.exception().isPresent());
+    assertFalse(t.value().isPresent());
+    assertFalse(t.isSuccess());
+    assertTrue(t.isFailure());
   }
 
   @Test
   public void testGetOrThrowShouldThrowWhenHasException() throws Exception {
-    // EXPECT
-    ex.expect(Exception.class);
-    ex.expectMessage("foo");
-
     // GIVEN
     Try<String> t = Try.of(null, new Exception("foo"));
 
-    // WHEN
-    t.getOrThrow();
+    // WHEN + THEN
+    Exception ex = assertThrows(Exception.class, t::getOrThrow);
+
+    assertEquals("foo", ex.getMessage());
   }
 
   @Test
   public void testGetOrThrowUncheckedShouldThrowRuntimeExceptionWhenHasCheckedException() throws Exception {
-    // EXPECT
-    ex.expect(RuntimeException.class);
-    ex.expectMessage("foo");
-
     // GIVEN
     Try<String> t = Try.of(null, new Exception("foo"));
 
-    // WHEN
-    t.getOrThrowUnchecked();
+    // WHEN + THEN
+    RuntimeException ex = assertThrows(RuntimeException.class, t::getOrThrowUnchecked);
+
+    //assertEquals("foo", ex.getMessage());
+    assertTrue(ex.getMessage().endsWith("foo"));
   }
 
   @Test
   public void testGetOrThrowUncheckedShouldThrowOriginalExceptionWhenItIsUnchecked() throws Exception {
-    // EXPECT
-    ex.expect(IllegalArgumentException.class);
-    ex.expectMessage("foo");
-
     // GIVEN
     Try<String> t = Try.of(null, new IllegalArgumentException("foo"));
 
-    // WHEN
-    t.getOrThrowUnchecked();
+    // WHEN + THEN
+    // WHEN + THEN
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, t::getOrThrowUnchecked);
+
+    assertEquals("foo", ex.getMessage());
   }
 
   @Test

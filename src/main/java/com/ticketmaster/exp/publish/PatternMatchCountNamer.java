@@ -35,7 +35,7 @@ public class PatternMatchCountNamer implements MatchCountNamer<String> {
 
   @Override
   public String name(String experimentName, MatchType matchType) {
-    return String.format(pattern,
+    return pattern.formatted(
         experimentName,
         matchType.name().toLowerCase(Locale.getDefault()));
   }

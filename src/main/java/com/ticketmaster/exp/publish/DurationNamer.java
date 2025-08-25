@@ -17,7 +17,7 @@
 package com.ticketmaster.exp.publish;
 
 public interface DurationNamer<K> {
-  public static enum DurationType {
+  enum DurationType {
     IMPROVEMENT,
     CONTROL,
     CANDIDATE;

@@ -16,13 +16,14 @@
 
 package com.ticketmaster.exp;
 
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MatchTypeTest {
   @Test
-  public void testValuesAndValueOf() throws Exception {
+  public void testValuesAndValueOf() {
     assertEquals(6, MatchType.values().length);
     assertEquals(MatchType.CANDIDATE_EXCEPTION, MatchType.valueOf("CANDIDATE_EXCEPTION"));
   }

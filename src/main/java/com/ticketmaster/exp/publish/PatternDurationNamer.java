@@ -34,7 +34,7 @@ public class PatternDurationNamer implements DurationNamer<String> {
 
   @Override
   public String name(String experimentName, DurationType DurationType) {
-    return String.format(pattern, experimentName,
+    return pattern.formatted(experimentName,
         DurationType.name().toLowerCase(Locale.getDefault()));
   }
 }

@@ -59,9 +59,9 @@ public class Try<T> implements Callable<T> {
     try {
       return call();
     } catch (Exception e) {
-      throw e instanceof RuntimeException
+      throw e instanceof RuntimeException re
           ?
-          (RuntimeException) e :
+          re :
           new RuntimeException(e);
     }
   }

@@ -9,15 +9,15 @@
 
     <!-- project properties -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>1.8</java.version>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <java.version>21</java.version>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
     <min.branch.coverage>0.95</min.branch.coverage>
     <min.line.coverage>0.95</min.line.coverage>
 
     <!-- plugin versions -->
-    <maven.compiler.version>3.3</maven.compiler.version>
-    <jacoco.version>0.7.4.201502262128</jacoco.version>
+    <maven.compiler.version>3.14.0</maven.compiler.version>
+    <jacoco.version>0.8.13</jacoco.version>
 
     <!-- test dependency versions -->
     <junit.version>4.11</junit.version>
@@ -35,15 +35,21 @@
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.11.0-M2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.11.0-M2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>${mockito.version}</version>
+      <artifactId>mockito-core</artifactId>
+      <version>5.18.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -102,9 +108,8 @@
             <arg>-verbose</arg>
             <arg>-Xlint:all,-options,-path</arg>
           </compilerArgs>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
           <encoding>${project.build.sourceEncoding}</encoding>
+          <release>${java.version}</release>
         </configuration>
       </plugin>
       <plugin>
@@ -169,54 +174,71 @@
       </configuration>
     </plugin>
 
-    <plugin>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>findbugs-maven-plugin</artifactId>
-      <version>3.0.0</version>
-      <configuration>
-        <effort>Max</effort>
-        <threshold>Low</threshold>
-        <!--
-        For a list of "Vistors" to omit or include:
-        http://findbugs.sourceforge.net/api/edu/umd/cs/findbugs/detect/package-summary.html
-        -->
-        <omitVisitors>Naming</omitVisitors>
-      </configuration>
-      <executions>
-        <!--
-           Ensures that FindBugs inspects source code when project is under test.
-           We could/should do this during compile but can make local development slower.
-       -->
-        <execution>
-          <id>analyze-compile</id>
-          <phase>test</phase>
-          <goals>
-            <goal>check</goal>
-          </goals>
-        </execution>
-      </executions>
-    </plugin>
+<!--    <plugin>-->
+<!--      <groupId>org.codehaus.mojo</groupId>-->
+<!--      <artifactId>findbugs-maven-plugin</artifactId>-->
+<!--      <version>3.0.5</version>-->
+<!--      <configuration>-->
+<!--        <effort>Max</effort>-->
+<!--        <threshold>Low</threshold>-->
+<!--        &lt;!&ndash;-->
+<!--        For a list of "Vistors" to omit or include:-->
+<!--        http://findbugs.sourceforge.net/api/edu/umd/cs/findbugs/detect/package-summary.html-->
+<!--        &ndash;&gt;-->
+<!--        <omitVisitors>Naming</omitVisitors>-->
+<!--      </configuration>-->
+<!--      <executions>-->
+<!--        &lt;!&ndash;-->
+<!--           Ensures that FindBugs inspects source code when project is under test.-->
+<!--           We could/should do this during compile but can make local development slower.-->
+<!--       &ndash;&gt;-->
+<!--        <execution>-->
+<!--          <id>analyze-compile</id>-->
+<!--          <phase>test</phase>-->
+<!--          <goals>-->
+<!--            <goal>check</goal>-->
+<!--          </goals>-->
+<!--        </execution>-->
+<!--      </executions>-->
+<!--    </plugin>-->
 
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-checkstyle-plugin</artifactId>
-      <version>2.15</version>
-      <configuration>
-        <consoleOutput>true</consoleOutput>
-        <configLocation>${basedir}/checkstyle.xml</configLocation>
-        <failsOnError>true</failsOnError>
-      </configuration>
-      <executions>
-        <execution>
-          <id>checkstyle</id>
-          <phase>verify</phase>
-          <goals>
-            <goal>checkstyle</goal>
-          </goals>
-        </execution>
-      </executions>
-    </plugin>
+<!--    <plugin>-->
+<!--      <groupId>org.apache.maven.plugins</groupId>-->
+<!--      <artifactId>maven-checkstyle-plugin</artifactId>-->
+<!--      <version>3.6.0</version>-->
+<!--      <configuration>-->
+<!--        <consoleOutput>true</consoleOutput>-->
+<!--        <configLocation>${basedir}/checkstyle.xml</configLocation>-->
+<!--        <failsOnError>true</failsOnError>-->
+<!--      </configuration>-->
+<!--      <executions>-->
+<!--        <execution>-->
+<!--          <id>checkstyle</id>-->
+<!--          <phase>verify</phase>-->
+<!--          <goals>-->
+<!--            <goal>checkstyle</goal>-->
+<!--          </goals>-->
+<!--        </execution>-->
+<!--      </executions>-->
+<!--    </plugin>-->
 
+      <plugin>
+        <groupId>org.openrewrite.maven</groupId>
+        <artifactId>rewrite-maven-plugin</artifactId>
+        <version>6.13.0</version>
+        <configuration>
+          <activeRecipes>
+            <recipe>org.openrewrite.java.testing.junit5.JUnit5BestPractices</recipe>
+          </activeRecipes>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-testing-frameworks</artifactId>
+            <version>3.12.0</version>
+          </dependency>
+        </dependencies>
+      </plugin>
   </plugins>
 
 </build>

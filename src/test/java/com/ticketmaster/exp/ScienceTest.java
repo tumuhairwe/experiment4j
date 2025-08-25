@@ -16,15 +16,14 @@
 
 package com.ticketmaster.exp;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
 import static com.ticketmaster.exp.Science.science;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,13 +33,13 @@ public class ScienceTest {
   Supplier callTracker = mock(Supplier.class);
   public static final String ARGS = "args";
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     science().clearExperiments();
     assertEquals(0, science().getExperimentCount());
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     science().clearExperiments();
     assertEquals(0, science().getExperimentCount());

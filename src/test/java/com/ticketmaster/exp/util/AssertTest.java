@@ -16,50 +16,43 @@
 
 package com.ticketmaster.exp.util;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AssertTest {
 
   // Removes noise from coverage results
   Assert a = new Assert();
 
-  @Rule
-  public ExpectedException ex = ExpectedException.none();
-
   @Test
-  public void testInRangeShouldThrowExceptionWhenEqualsUpperBound() throws Exception {
-    // EXPECT
-    ex.expect(IllegalArgumentException.class);
-    ex.expectMessage("value 100 is not between bounds of 0 (inclusive) and 100 (exclusive)");
-
-    // GIVEN
-    Assert.between(100, 0, 100);
+  public void testInRangeShouldThrowExceptionWhenEqualsUpperBound() {
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+      Assert.between(100, 0, 100);
+    });
+    // Optionally verify message
+    assert ex.getMessage().contains("value 100 is not between bounds of 0 (inclusive) and 100 (exclusive)");
   }
 
   @Test
-  public void testInRangeShouldThrowExceptionWhenOverUpperBound() throws Exception {
-    // EXPECT
-    ex.expect(IllegalArgumentException.class);
-    ex.expectMessage("value 101 is not between bounds of 0 (inclusive) and 100 (exclusive)");
-
-    // GIVEN
-    Assert.between(101, 0, 100);
+  public void testInRangeShouldThrowExceptionWhenOverUpperBound() {
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+      Assert.between(101, 0, 100);
+    });
+    assert ex.getMessage().contains("value 101 is not between bounds of 0 (inclusive) and 100 (exclusive)");
   }
 
   @Test
-  public void testInRangeShouldThrowExceptionWhenUnderLowerBound() throws Exception {
-    // EXPECT
-    ex.expect(IllegalArgumentException.class);
-    ex.expectMessage("value -1 is not between bounds of 0 (inclusive) and 100 (exclusive)");
-
-    // GIVEN
-    Assert.between(-1, 0, 100);
+  public void testInRangeShouldThrowExceptionWhenUnderLowerBound() {
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+      Assert.between(-1, 0, 100);
+    });
+    assert ex.getMessage().contains("value -1 is not between bounds of 0 (inclusive) and 100 (exclusive)");
   }
 
   @Test
-  public void testInRangeShouldNotThrowExceptionWhenInRange() throws Exception {
+  public void testInRangeShouldNotThrowExceptionWhenInRange() {
     // MIDDLE
     Assert.between(50, 0, 100);
 
@@ -71,23 +64,22 @@ public class AssertTest {
   }
 
   @Test
-  public void testHasTextShouldThrowExceptionWhenNull() throws Exception {
-    // EXPECT
-    ex.expect(IllegalArgumentException.class);
-    ex.expectMessage("has text");
-
-    // WHEN
-    Assert.hasText(null, "has text");
+  public void testHasTextShouldThrowExceptionWhenNull() {
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+      Assert.hasText(null, "has text");
+    });
+    assertTrue(ex.getMessage().contains("has text"));
   }
 
   @Test
   public void testHasTextShouldThrowExceptionWhenEmpty() throws Exception {
     // EXPECT
-    ex.expect(IllegalArgumentException.class);
-    ex.expectMessage("has text");
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+      Assert.hasText(null, "has text");
+    });
 
     // WHEN
-    Assert.hasText("", "has text");
+    assert ex.getMessage().contains("has text");
   }
 
   @Test

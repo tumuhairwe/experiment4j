@@ -16,14 +16,14 @@
 
 package com.ticketmaster.exp.publish;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConcurrentMapMatchCounterTest {
 
   @Test
-  public void testGetAndIncrementOnEmptyMap() throws Exception {
+  public void testGetAndIncrementOnEmptyMap() {
 
     // GIVEN
     ConcurrentMapMatchCounter<String> ccmc = new ConcurrentMapMatchCounter<>();

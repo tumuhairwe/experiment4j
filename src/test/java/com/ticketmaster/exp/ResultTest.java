@@ -17,7 +17,7 @@
 package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.util.SameWhens;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -25,7 +25,7 @@ import java.util.Objects;
 
 import static com.ticketmaster.exp.TrialType.CANDIDATE;
 import static com.ticketmaster.exp.TrialType.CONTROL;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ResultTest {
   @Test

@@ -16,27 +16,21 @@
 
 package com.ticketmaster.exp.util;
 
-import org.junit.Test;
-
 import java.util.Comparator;
 import java.util.function.BiFunction;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SameWhensTest {
   // remove coverage noise
   SameWhens sameWhens = new SameWhens();
 
   @Test
-  public void testForComparator() throws Exception {
+  public void testForComparator() {
 
     // GIVEN
-    Comparator<String> comp = new Comparator<String>() {
-      @Override
-      public int compare(String o1, String o2) {
-        return o1.compareTo(o2);
-      }
-    };
+    Comparator<String> comp = Comparator.naturalOrder();
 
     // WHEN
     BiFunction<String, String, Boolean> biFunction = SameWhens.fromComparator(comp);
@@ -50,10 +44,8 @@ public class SameWhensTest {
   public void testSameClass() throws Exception {
 
     assertEquals(true, SameWhens.classesMatch().apply("foo", "bar"));
-    assertEquals(false, SameWhens.classesMatch().apply("foo", new Integer(1)));
-    assertEquals(false, SameWhens.classesMatch().apply(null, new Integer(1)));
+    assertEquals(false, SameWhens.classesMatch().apply("foo", 1));
+    assertEquals(false, SameWhens.classesMatch().apply(null, 1));
     assertEquals(false, SameWhens.classesMatch().apply("foo", null));
-
-
   }
 }

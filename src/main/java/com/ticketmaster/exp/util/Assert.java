@@ -29,7 +29,7 @@ public class Assert {
   public static void between(int value, int minInclusive, int maxExclusive) {
     if (value < minInclusive || value >= maxExclusive) {
       throw new IllegalArgumentException(
-          String.format("value %d is not between bounds of %d (inclusive) and %d (exclusive)",
+          "value %d is not between bounds of %d (inclusive) and %d (exclusive)".formatted(
               value, minInclusive, maxExclusive)
       );
     }

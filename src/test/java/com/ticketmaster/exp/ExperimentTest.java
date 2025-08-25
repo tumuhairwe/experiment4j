@@ -16,20 +16,17 @@
 
 package com.ticketmaster.exp;
 
-import com.ticketmaster.exp.util.Selectors;
-import org.junit.Test;
-
-import java.util.function.BooleanSupplier;
+import org.junit.jupiter.api.Test;
 
 import static com.ticketmaster.exp.Science.science;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Created by dannwebster on 6/20/15.
  */
 public class ExperimentTest {
   @Test
-  public void testExperiment() throws Exception {
+  public void testExperiment() {
     // GIVEN
     science().experiment("person-name", () -> new Experiment<Object, Object>("person-name"));
 

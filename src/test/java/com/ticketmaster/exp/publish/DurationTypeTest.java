@@ -16,21 +16,20 @@
 
 package com.ticketmaster.exp.publish;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static com.ticketmaster.exp.publish.DurationNamer.DurationType;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DurationTypeTest {
   @Test
-  public void testValueOf() throws Exception {
+  public void testValueOf() {
     // EXPECT
     assertEquals(DurationType.CANDIDATE, DurationType.valueOf("CANDIDATE"));
     assertEquals(DurationType.CONTROL, DurationType.valueOf("CONTROL"));
     assertEquals(DurationType.IMPROVEMENT, DurationType.valueOf("IMPROVEMENT"));
     assertEquals(3, DurationType.values().length);
-
-
   }
 
 }

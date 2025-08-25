@@ -20,14 +20,13 @@ import com.ticketmaster.exp.MatchType;
 import com.ticketmaster.exp.Result;
 import com.ticketmaster.exp.TrialResult;
 import com.ticketmaster.exp.TrialType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.time.Duration;
 import java.time.Instant;
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PrintStreamPublisherTest {
 
@@ -61,9 +60,11 @@ public class PrintStreamPublisherTest {
 
     // THEN
     assertEquals(
-        "candidate took 1 millis to execute\n" +
-            "control took 1 millis to execute\n" +
-            "example: candidate and control both threw exceptions, and the exceptions match\n", s);
+        """
+        candidate took 1 millis to execute
+        control took 1 millis to execute
+        example: candidate and control both threw exceptions, and the exceptions match
+        """, s);
   }
 
   @Test
@@ -77,9 +78,11 @@ public class PrintStreamPublisherTest {
 
     // THEN
     assertEquals(
-        "candidate took 1 millis to execute\n" +
-            "control took 1 millis to execute\n" +
-            "example: candidate and control both executed successfully and match\n", s);
+        """
+        candidate took 1 millis to execute
+        control took 1 millis to execute
+        example: candidate and control both executed successfully and match
+        """, s);
   }
 
   @Test
@@ -93,9 +96,11 @@ public class PrintStreamPublisherTest {
 
     // THEN
     assertEquals(
-        "candidate took 1 millis to execute\n" +
-            "control took 1 millis to execute\n" +
-            "example: the candidate executed successfully but the control threw an exception\n", s);
+        """
+        candidate took 1 millis to execute
+        control took 1 millis to execute
+        example: the candidate executed successfully but the control threw an exception
+        """, s);
   }
 
   @Test
@@ -109,9 +114,11 @@ public class PrintStreamPublisherTest {
 
     // THEN
     assertEquals(
-        "candidate took 1 millis to execute\n" +
-            "control took 1 millis to execute\n" +
-            "example: the control executed successfully but the candidate threw an exception\n", s);
+        """
+        candidate took 1 millis to execute
+        control took 1 millis to execute
+        example: the control executed successfully but the candidate threw an exception
+        """, s);
   }
 
   @Test
@@ -125,9 +132,11 @@ public class PrintStreamPublisherTest {
 
     // THEN
     assertEquals(
-        "candidate took 1 millis to execute\n" +
-            "control took 1 millis to execute\n" +
-            "example: candidate and control both threw exceptions, but the exceptions don't match\n", s);
+        """
+        candidate took 1 millis to execute
+        control took 1 millis to execute
+        example: candidate and control both threw exceptions, but the exceptions don't match
+        """, s);
   }
 
   @Test
@@ -141,9 +150,11 @@ public class PrintStreamPublisherTest {
 
     // THEN
     assertEquals(
-        "candidate took 1 millis to execute\n" +
-            "control took 1 millis to execute\n" +
-            "example: candidate and control both executed successfully, but the responses don't match\n", s);
+        """
+        candidate took 1 millis to execute
+        control took 1 millis to execute
+        example: candidate and control both executed successfully, but the responses don't match
+        """, s);
   }
 
 }

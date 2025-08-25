@@ -16,9 +16,9 @@
 
 package com.ticketmaster.exp;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TrialTypeTest {
   @Test
@@ -28,8 +28,5 @@ public class TrialTypeTest {
     assertEquals(TrialType.CANDIDATE, TrialType.valueOf("CANDIDATE"));
     assertEquals(TrialType.CONTROL, TrialType.valueOf("CONTROL"));
     assertEquals(2, TrialType.values().length);
-
-
   }
-
 }

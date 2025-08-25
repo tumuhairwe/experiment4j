@@ -19,9 +19,9 @@ package com.ticketmaster.exp.publish;
 import java.util.Map;
 
 public interface MatchCounter<K> {
-  public Integer getMatchCount(K matchKey);
+  Integer getMatchCount(K matchKey);
 
-  public int getAndIncrement(K matchKey, int count);
+  int getAndIncrement(K matchKey, int count);
 
-  public Map<K, Integer> getCounts();
+  Map<K, Integer> getCounts();
 }

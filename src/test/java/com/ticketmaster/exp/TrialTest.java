@@ -18,8 +18,8 @@ package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.util.ReturnChoices;
 import com.ticketmaster.exp.util.Selectors;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -27,9 +27,9 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -45,7 +45,7 @@ public class TrialTest {
   Publisher<String> publisher = mock(Publisher.class);
   Clock clock = mock(Clock.class);
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     when(clock.instant()).thenAnswer((inv) -> Instant.EPOCH);
     when(candidate.apply(any())).thenReturn("candidate");
