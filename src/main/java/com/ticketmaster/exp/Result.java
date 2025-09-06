@@ -82,15 +82,15 @@ public class Result<T> {
 
   boolean valuesMatch(BiFunction<T, T, Boolean> sameWhen) {
     T controlValue = controlResult.getTryResult().value().get();
-    T candiateValue = candidateResult.getTryResult().value().get();
-    return sameWhen.apply(controlValue, candiateValue);
+    T candidateValue = candidateResult.getTryResult().value().get();
+    return sameWhen.apply(controlValue, candidateValue);
   }
 
   boolean exceptionsMatch(
       BiFunction<? super Exception, ? super Exception, Boolean> exceptionsSameWhen) {
     Exception controlException = controlResult.getTryResult().exception().get();
-    Exception candiateException = candidateResult.getTryResult().exception().get();
-    return exceptionsSameWhen.apply(controlException, candiateException);
+    Exception candidateException = candidateResult.getTryResult().exception().get();
+    return exceptionsSameWhen.apply(controlException, candidateException);
   }
 
   public String getName() {
