@@ -75,9 +75,9 @@ public class Selectors {
   Selectors() {
   }
 
-  private static final BooleanSupplier NEVER = () -> false;
+  public static final BooleanSupplier NEVER = () -> false;
 
-  private static final BooleanSupplier ALWAYS = () -> true;
+  public static final BooleanSupplier ALWAYS = () -> true;
 
   public static BooleanSupplier never() {
     return NEVER;
