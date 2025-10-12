@@ -35,6 +35,11 @@ public class MeasurerPublisher<K> implements Publisher {
   private final MatchCountNamer matchCountNamer;
   private final DurationNamer durationNamer;
 
+    @Override
+    public void accept(Object matchType, Object payload) {
+        publish((MatchType) matchType, (Result) payload);
+    }
+
   public static class Builder<K> {
     private Measurer measurer = PrintStreamMeasurer.DEFAULT;
     private MatchCountNamer<K> matchCountNamer;

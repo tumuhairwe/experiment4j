@@ -16,6 +16,8 @@
 
 package com.ticketmaster.exp;
 
-public interface Publisher<T> {
+import java.util.function.BiConsumer;
+
+public interface Publisher<T> extends BiConsumer<MatchType, Result<T>> {
   void publish(MatchType matchType, Result<T> payload);
 }
