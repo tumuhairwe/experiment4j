@@ -35,4 +35,7 @@ public class SameWhens {
     return (M m1, M m2) -> comparator.compare(m1, m2) == 0;
   }
 
+  public static BiFunction<Exception, Exception, Boolean> causesMatch() {
+    return (Exception e1, Exception e2) -> e1.getCause().equals(e2.getCause());
+  }
 }

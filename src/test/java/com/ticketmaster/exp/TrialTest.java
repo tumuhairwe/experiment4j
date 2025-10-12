@@ -16,9 +16,11 @@
 
 package com.ticketmaster.exp;
 
+import com.ticketmaster.exp.config.entry.EntryGuard;
 import com.ticketmaster.exp.util.ReturnChoices;
 import com.ticketmaster.exp.util.Selectors;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -27,7 +29,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
@@ -53,6 +55,7 @@ public class TrialTest {
   }
 
   @Test
+  @DisplayName("Only control is executed when doExperimentWhen() is never()")
   public void testOnlyControlWhenDoExperimentReturnsFalse() throws Exception {
     // GIVEN
     Trial<String, String> subject = new Trial(
@@ -81,7 +84,8 @@ public class TrialTest {
   }
 
   @Test
-  public void testOnlyControlWhenDoExperimentReturnsTrueAndAlwaysCandidateValue() throws Exception {
+  @DisplayName("Only control is executed when doExperimentWhen() = always() and ReturnChoice = alwaysCandidateValue()")
+  public void testOnlyControlWhenDoExperimentReturnsTrueAndAlwaysCandidateValue() {
     // GIVEN
     Trial<String, String> subject = new Trial(
         "trial",
@@ -109,6 +113,7 @@ public class TrialTest {
   }
 
   @Test
+  @DisplayName("Only control is executed when doExperimentWhen returns true and alwaysControlValue")
   public void testOnlyControlWhenDoExperimentReturnsTrueAndAlwaysControlValue() throws Exception {
     // GIVEN
     Trial<String, String> subject = new Trial(
@@ -137,6 +142,7 @@ public class TrialTest {
   }
 
   @Test
+  @DisplayName("Control is returned when candidate throws an exception")
   public void testTestOutputWhen() throws Exception {
     when(candidate.apply(anyString())).thenThrow(new IllegalArgumentException());
     // GIVEN
@@ -163,5 +169,58 @@ public class TrialTest {
     verify(control, times(1)).apply("input");
     verify(candidate, times(1)).apply("input");
     verify(publisher, times(1)).publish(eq(MatchType.CANDIDATE_EXCEPTION), any(Result.class));
+  }
+
+  @Test
+  @DisplayName("Trial never runs when EntryGuard is NEVER")
+  public void testApply_neverRun(){
+    String trialName = "trial-that-never-runs";
+    Trial<String, String> subject = new Trial(
+        trialName,
+        control,
+        candidate,
+        Executors.newSingleThreadExecutor(),
+        ReturnChoices.alwaysControl(),
+        Selectors.always(),
+        Objects::equals,
+        Objects::equals,
+        publisher,
+        clock
+    )
+            .withEntryGuard(EntryGuard.NEVER);
+
+    String output = subject.apply(ARGS);
+
+    assertNull(output);
+    assertEquals(trialName, subject.getName());
+    verify(control, never()).apply(anyString());
+    verify(candidate, never()).apply(anyString());
+    verify(publisher, never()).publish(any(), any());
+  }
+  @Test
+  @DisplayName("Trial runs when EntryGuard is ALWAYS")
+  public void testApply_alwaysRun(){
+    String trialName = "trial-that-always-runs";
+    Trial<String, String> subject = new Trial(
+            trialName,
+            control,
+            candidate,
+            Executors.newSingleThreadExecutor(),
+            ReturnChoices.alwaysControl(),
+            Selectors.always(),
+            Objects::equals,
+            Objects::equals,
+            publisher,
+            clock
+    )
+            .withEntryGuard(EntryGuard.ALWAYS);
+
+    String output = subject.apply(ARGS);
+
+    assertNotNull(output);
+    assertEquals(trialName, subject.getName());
+    verify(control, times(1)).apply(eq(ARGS));
+    verify(candidate, times(1)).apply(eq(ARGS));
+    verify(publisher, times(1)).publish(eq(MatchType.MISMATCH), any(Result.class)); // setUp() to have candidate -> "candidate" && control -> "control"
   }
 }

@@ -16,12 +16,14 @@
 
 package com.ticketmaster.exp;
 
+import com.ticketmaster.exp.config.entry.EntryGuard;
 import com.ticketmaster.exp.util.Assert;
 import com.ticketmaster.exp.util.Try;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -42,6 +44,7 @@ public class Trial<I, O> implements Function<I, O> {
   private final Function<Result<O>, Try<O>> returnChoice;
   private final BooleanSupplier doExperimentWhen;
   private final Clock clock;
+  private EntryGuard entryGuard;
 
   private final BiFunction<O, O, Boolean> sameWhen;
   private final BiFunction<Exception, Exception, Boolean> exceptionsSameWhen;
@@ -81,6 +84,7 @@ public class Trial<I, O> implements Function<I, O> {
     this.exceptionsSameWhen = exceptionsSameWhen;
     this.publisher = publisher;
     this.clock = clock;
+    this.entryGuard = EntryGuard.ALWAYS;
   }
 
   public Trial<I, O> override(Overrides<O> overrides) {
@@ -97,7 +101,27 @@ public class Trial<I, O> implements Function<I, O> {
         this.clock);
   }
 
+  public Trial<I, O> withEntryGuard(EntryGuard entryGuard) {
+    Trial<I, O> trial = new Trial<>(
+        this.name,
+        this.control,
+        this.candidate,
+        this.executorService,
+        this.returnChoice,
+        this.doExperimentWhen,
+        this.sameWhen,
+        this.exceptionsSameWhen,
+        this.publisher,
+        this.clock);
+
+    trial.entryGuard = entryGuard;
+    return trial;
+  }
   public final O apply(I args) {
+    boolean permitted = entryGuard.shouldEnter(0, 0, LocalDateTime.now());
+    if (!permitted){
+        return null;
+    }
     return perform(args).getOrThrowUnchecked();
   }
 
@@ -151,6 +175,7 @@ public class Trial<I, O> implements Function<I, O> {
 
     MatchType matchType = determineMatch(result);
     publisher.publish(matchType, result);
+    publisher.accept(matchType, result);
     return result;
   }
 
