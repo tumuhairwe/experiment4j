@@ -63,4 +63,9 @@ public class StringConsumerPublisher<T> implements Publisher<T> {
     }
     stringConsumer.accept(payload.getName() + ": " + message);
   }
+
+  @Override
+    public void accept(MatchType matchType, Result<T> payload) {
+        publish(matchType, payload);
+    }
 }
