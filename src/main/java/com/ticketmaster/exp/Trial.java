@@ -49,7 +49,6 @@ public class Trial<I, O> implements Function<I, O> {
   private final BiFunction<Exception, Exception, Boolean> exceptionsSameWhen;
 
   private final Publisher<O> publisher;
-  //private ExecutorService experimentExecutor = Executors.newFixedThreadPool(10);
   private ExperimentService experimentService = new ExperimentService(new ExperimentRunRepository());
 
   public Trial(
@@ -177,7 +176,6 @@ public class Trial<I, O> implements Function<I, O> {
     }
 
     MatchType matchType = determineMatch(result);
-    //publisher.publish(matchType, result);
     publisher.accept(matchType, result);
     return result;
   }
