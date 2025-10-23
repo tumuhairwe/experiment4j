@@ -17,6 +17,8 @@
 package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.config.entry.EntryGuard;
+import com.ticketmaster.exp.repository.ExperimentRunRepository;
+import com.ticketmaster.exp.service.ExperimentService;
 import com.ticketmaster.exp.util.Assert;
 import com.ticketmaster.exp.util.Try;
 
@@ -24,10 +26,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
@@ -50,6 +49,8 @@ public class Trial<I, O> implements Function<I, O> {
   private final BiFunction<Exception, Exception, Boolean> exceptionsSameWhen;
 
   private final Publisher<O> publisher;
+  //private ExecutorService experimentExecutor = Executors.newFixedThreadPool(10);
+  private ExperimentService experimentService = new ExperimentService(new ExperimentRunRepository());
 
   public Trial(
       String name,
@@ -127,7 +128,10 @@ public class Trial<I, O> implements Function<I, O> {
 
   final Try<O> perform(I args) {
     Result<O> result = getResult(args);
+    experimentService.saveResult(result);
     Try<O> oTry = returnChoice.apply(result);
+    MatchType matchType = determineMatch(result);
+    publisher.publish(matchType, result);
     return oTry;
   }
 
@@ -135,7 +139,6 @@ public class Trial<I, O> implements Function<I, O> {
     Result<O> result;
     if (doExperimentWhen.getAsBoolean()) {
       result = runCandidateAndControl(args);
-
     } else {
       result = runOnlyControl(args);
 
@@ -174,7 +177,7 @@ public class Trial<I, O> implements Function<I, O> {
     }
 
     MatchType matchType = determineMatch(result);
-    publisher.publish(matchType, result);
+    //publisher.publish(matchType, result);
     publisher.accept(matchType, result);
     return result;
   }
