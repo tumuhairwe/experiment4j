@@ -29,7 +29,6 @@ log/
 
 #### Other #####
 .sdkman/
-.gradle/
 build/
 /lib
 /out/
