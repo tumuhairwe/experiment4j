@@ -17,10 +17,24 @@
 package com.ticketmaster.exp;
 
 public enum MatchType {
+  /** Both returned a result, and the results matched. */
   MATCH,
-  EXCEPTION_MATCH,
+  /** Both returned a result, but the results did not match. */
   MISMATCH,
+  /** Both threw exceptions of the same type. */
+  EXCEPTION_MATCH,
+  /** Both threw exceptions of different types. */
   EXCEPTION_MISMATCH,
+  /** The control threw an exception, but the candidate did not. */
   CONTROL_EXCEPTION,
-  CANDIDATE_EXCEPTION,
+  /** The candidate threw an exception, but the control did not. */
+  CANDIDATE_EXCEPTION;
+
+  /**
+   * Checks if this match type represents a scenario where the results or behaviors diverged.
+   * @return true if the outcome is considered a mismatch, false otherwise.
+   */
+  public boolean isMismatch() {
+    return this == MISMATCH || this == EXCEPTION_MISMATCH || this == CONTROL_EXCEPTION || this == CANDIDATE_EXCEPTION;
+  }
 }

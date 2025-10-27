@@ -23,9 +23,10 @@ import com.ticketmaster.exp.publish.DurationNamer.DurationType;
 import com.ticketmaster.exp.util.Assert;
 
 import java.time.Duration;
+import java.util.function.BiPredicate;
 
-public class MeasurerPublisher<K> implements Publisher {
-  public static final MeasurerPublisher<String> DEFAULT = MeasurerPublisher.<String>builder()
+public class MeasurerPublisher<K> implements Publisher<K> {
+  public static final MeasurerPublisher DEFAULT = MeasurerPublisher.<String>builder()
       .durationNamer(PatternDurationNamer.DEFAULT)
       .matchCountNamer(PatternMatchCountNamer.DEFAULT)
       .measurer(PrintStreamMeasurer.DEFAULT)
@@ -35,10 +36,10 @@ public class MeasurerPublisher<K> implements Publisher {
   private final MatchCountNamer matchCountNamer;
   private final DurationNamer durationNamer;
 
-    @Override
-    public void accept(Object matchType, Object payload) {
-        publish((MatchType) matchType, (Result) payload);
-    }
+  @Override
+  public void accept(MatchType matchType, Result<K> payload) {
+    publish(matchType, payload);
+  }
 
   public static class Builder<K> {
     private Measurer measurer = PrintStreamMeasurer.DEFAULT;
@@ -54,6 +55,7 @@ public class MeasurerPublisher<K> implements Publisher {
 
     public Builder<K> measurer(Measurer measurer) {
       this.measurer = measurer;
+      BiPredicate<String, Integer> predicate = (s, i) -> i % 1000 == 0;
       return this;
     }
 
@@ -86,7 +88,7 @@ public class MeasurerPublisher<K> implements Publisher {
   }
 
   @Override
-  public void publish(MatchType matchType, Result payload) {
+  public void publish(MatchType matchType, Result<K> payload) {
     String name = payload.getName();
     measurer.measureCount(matchCountNamer.name(name, matchType), 1);
     Duration controlDuration = payload.getControlResult().getDuration();
