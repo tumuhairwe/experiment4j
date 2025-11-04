@@ -16,10 +16,30 @@ repositories {
         url = uri('https://repo.maven.apache.org/maven2/')
     }
 }
-def junitVersion = '5.13.4'
 dependencies {
-    testImplementation platform("org.junit:junit-bom:${junitVersion}")
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    // JPA API
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+
+    // Hibernate ORM Implementation
+    implementation 'org.hibernate.orm:hibernate-core:6.2.7.Final'
+
+    // H2 In-Memory Database (for runtime)
+    runtimeOnly 'com.h2database:h2:2.1.214'
+
+    // InfluxDB client library for connecting to the time-series database
+    implementation 'org.influxdb:influxdb-java:2.23'
+    // SLF4J for logging, which is a runtime dependency for the InfluxDB client
+    runtimeOnly("org.slf4j:slf4j-simple:2.0.13")
+
+    implementation 'com.google.guava:guava:32.1.2-jre'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1'
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation libs.org.mockito.mockito.core
 
@@ -35,6 +55,7 @@ version = '2.0.0-SNAPSHOT'
 description = 'experiments4j'
 
 java {
+    withSourcesJar()
     withJavadocJar()
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -49,7 +70,8 @@ test {
 publishing {
     publications {
         maven(MavenPublication) {
-            from(components.java)
+            from components.java
+            artifact javadocJar
         }
     }
 }
