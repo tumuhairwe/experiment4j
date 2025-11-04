@@ -20,6 +20,7 @@ import com.ticketmaster.exp.MatchType;
 import com.ticketmaster.exp.Publisher;
 import com.ticketmaster.exp.Result;
 import com.ticketmaster.exp.TrialResult;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.verify;
 
 public class PublisherTest {
   @Test
+  @DisplayName("MeasurerPublisher publishes metrics using the provided Measurer, DurationNamer, and MatchCountNamer")
   public void testPublisherSyntax() throws Exception {
     // GIVEN
     Measurer<String> m = mock(Measurer.class);

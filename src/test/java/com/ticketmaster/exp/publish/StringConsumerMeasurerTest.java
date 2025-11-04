@@ -16,6 +16,7 @@
 
 package com.ticketmaster.exp.publish;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.when;
 public class StringConsumerMeasurerTest {
 
   @Test
+  @DisplayName("measureCount should call StringConsumer with count string")
   public void testCountShouldCallStringConsumer() throws Exception {
     // GIVEN
     Consumer<String> sc = mock(Consumer.class);
@@ -45,6 +47,7 @@ public class StringConsumerMeasurerTest {
   }
 
   @Test
+  @DisplayName("measureDuration should call StringConsumer with duration string")
   public void testMeasureDurationShouldCallStringConsumer() throws Exception {
     // GIVEN
     Consumer<String> sc = mock(Consumer.class);

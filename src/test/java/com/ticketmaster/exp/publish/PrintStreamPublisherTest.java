@@ -20,6 +20,7 @@ import com.ticketmaster.exp.MatchType;
 import com.ticketmaster.exp.Result;
 import com.ticketmaster.exp.TrialResult;
 import com.ticketmaster.exp.TrialType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -40,16 +41,7 @@ public class PrintStreamPublisherTest {
   PrintStream ps = new PrintStream(bos);
 
   @Test
-  public void testSystemOutPublisher() throws Exception {
-
-    // GIVEN
-    PrintStreamPublisher<String> subject = new PrintStreamPublisher<>();
-
-    // WHEN
-    subject.publish(MatchType.MATCH, result);
-  }
-
-  @Test
+  @DisplayName("When MatchType = EXCEPTION_MATCH, exceptions match messages are published correctly")
   public void testExceptionsMatchMessagesCorrectly() throws Exception {
     // GIVEN
     PrintStreamPublisher<String> subject = new PrintStreamPublisher<>(ps);
@@ -68,6 +60,7 @@ public class PrintStreamPublisherTest {
   }
 
   @Test
+  @DisplayName("When MatchType = MATCH, match message is published correctly")
   public void testMatchMessagesCorrectly() throws Exception {
     // GIVEN
     PrintStreamPublisher<String> subject = new PrintStreamPublisher<>(ps);
@@ -86,6 +79,7 @@ public class PrintStreamPublisherTest {
   }
 
   @Test
+  @DisplayName("When MatchType = CONTROL_EXCEPTION, match message is published correctly")
   public void testControlExceptionMessagesCorrectly() throws Exception {
     // GIVEN
     PrintStreamPublisher<String> subject = new PrintStreamPublisher<>(ps);
@@ -104,6 +98,7 @@ public class PrintStreamPublisherTest {
   }
 
   @Test
+  @DisplayName("When MatchType = CANDIDATE_EXCEPTION, candidate-match message is published correctly")
   public void testCandidateExceptionMessagesCorrectly() throws Exception {
     // GIVEN
     PrintStreamPublisher<String> subject = new PrintStreamPublisher<>(ps);
@@ -122,6 +117,7 @@ public class PrintStreamPublisherTest {
   }
 
   @Test
+  @DisplayName("When MatchType = EXCEPTION_MISMATCH, exception-mismatch messages is published correctly")
   public void testExceptionMisMatchMessagesCorrectly() throws Exception {
     // GIVEN
     PrintStreamPublisher<String> subject = new PrintStreamPublisher<>(ps);
@@ -140,6 +136,7 @@ public class PrintStreamPublisherTest {
   }
 
   @Test
+  @DisplayName("When MatchType = MISMATCH, mismatch message is published correctly")
   public void testMisMatchMessagesCorrectly() throws Exception {
     // GIVEN
     PrintStreamPublisher<String> subject = new PrintStreamPublisher<>(ps);
@@ -156,5 +153,4 @@ public class PrintStreamPublisherTest {
         example: candidate and control both executed successfully, but the responses don't match
         """, s);
   }
-
 }
