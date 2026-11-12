@@ -119,8 +119,10 @@ public class Trial<I, O> implements Function<I, O> {
   }
   public final O apply(I args) {
     boolean permitted = entryGuard.shouldEnter(0, 0, LocalDateTime.now());
-    if (!permitted){
-        return null;
+    if (!permitted) {
+      // Not entering the experiment must never change what the caller gets:
+      // run only the control and return its result (or rethrow its exception).
+      return observe(CONTROL, control, args).getTryResult().getOrThrowUnchecked();
     }
     return perform(args).getOrThrowUnchecked();
   }
