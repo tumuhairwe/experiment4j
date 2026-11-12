@@ -17,6 +17,7 @@
 package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.config.entry.EntryGuard;
+import com.ticketmaster.exp.config.entry.ExactCountGuard;
 import com.ticketmaster.exp.config.entry.ExactMismatchGuard;
 import com.ticketmaster.exp.publish.StringConsumerPublisher;
 import com.ticketmaster.exp.util.ReturnChoices;
@@ -401,5 +402,25 @@ public class TrialTest {
 
     assertEquals(1, guardCalls.get());
     verify(candidate, times(1)).apply(eq(ARGS));
+  }
+
+  @Test
+  @DisplayName("ExactCountGuard(N) lets the candidate run exactly N times")
+  public void testApply_exactCountGuardAllowsExactlyNRuns() {
+    Experiment<String, String> experiment = Experiment.<String, String>named("count-limited")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+    EntryGuard atMostTwoRuns = new ExactCountGuard(2);
+
+    for (int i = 0; i < 5; i++) {
+      assertEquals("control", experiment.trial().withEntryGuard(atMostTwoRuns).apply(ARGS));
+    }
+
+    verify(candidate, times(2)).apply(anyString());
+    verify(control, times(5)).apply(anyString());
+    assertEquals(2, experiment.getStats().getTotalRuns());
   }
 }
