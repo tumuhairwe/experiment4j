@@ -1,79 +1,115 @@
-##Contributing to the Experiment4J
+# Contributing to Experiment4J
 
-First off, thank you for considering contributing! We're excited to have you join our community. This project thrives on the contributions of developers like you, and we appreciate you taking the time to help us build a great tool for the software engineering community. 
+First off, thank you for considering contributing! We're excited to have you join our community. This project thrives on the contributions of developers like you, and we appreciate you taking the time to help us build a great tool for the software engineering community.
 
-This document provides guidelines for contributing to the project.
+This document provides guidelines for contributing to the project. To see what we are working on and what is planned, read the [Roadmap](ROADMAP.md).
 
-##Table of Contents
+## Table of Contents
+
 - [Code of Conduct](#code-of-conduct)
 - [How Can I Contribute?](#how-can-i-contribute)
   - [Reporting Bugs](#reporting-bugs)
   - [Suggesting Enhancements](#suggesting-enhancements)
   - [Your First Code Contribution](#your-first-code-contribution)
-  - [Pull Request](#pull-requests)
+  - [Development Setup](#development-setup)
+  - [Pull Requests](#pull-requests)
 - [Style Guides](#style-guides)
+  - [Branch Names](#branch-names)
+  - [Pull Request Titles](#pull-request-titles)
   - [Git Commit Messages](#git-commit-messages)
   - [Java Style Guide](#java-style-guide)
 
-<h3>Code of Conduct</h3>
+## Code of Conduct
 
-This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior.
+Everyone participating in this project is expected to be respectful, constructive and welcoming. Harassment or abusive behaviour of any kind will not be tolerated. Please report unacceptable behaviour to the project maintainers.
 
-<h3>How Can I Contribute?</h3>
+## How Can I Contribute?
 
-<h4>Reporting Bugs</h4>
+### Reporting Bugs
 
-If you find a bug, please ensure the bug was not already reported by searching on GitHub under Issues.
+If you find a bug, please ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/tumuhairwe/experiment4j/issues).
 
 If you're unable to find an open issue addressing the problem, open a new one. Be sure to include a title and clear description, as much relevant information as possible, and a code sample or an executable test case demonstrating the expected behavior that is not occurring.
 
-<h4>Suggesting Enhancements</h4>
+### Suggesting Enhancements
 
-If you have an idea for an enhancement, please search the Issues to see if it has been discussed before. If not, open a new issue to start a discussion. This allows us to coordinate our efforts and prevent duplication of work.
+If you have an idea for an enhancement, please search the [Issues](https://github.com/tumuhairwe/experiment4j/issues) to see if it has been discussed before, and check the [Roadmap](ROADMAP.md). If not, open a new issue to start a discussion. This allows us to coordinate our efforts and prevent duplication of work.
 
-<h4>Your First Code Contribution</h4>
+### Your First Code Contribution
 
-Unsure where to begin contributing? You can start by looking through good first issue and help wanted issues:
+Unsure where to begin contributing? You can start by looking through these issues:
 
-Good first issue - issues which should only require a few lines of code, and a test or two.
+- [Good first issues](https://github.com/tumuhairwe/experiment4j/labels/good%20first%20issue): issues which should only require a few lines of code, and a test or two.
+- [Help wanted](https://github.com/tumuhairwe/experiment4j/labels/help%20wanted): issues which should be a bit more involved than good first issues.
 
-Help wanted - issues which should be a bit more involved than good first issue issues.
+### Development Setup
 
-<h4>Pull Requests</h4>
+- **JDK 21**. The build uses a Gradle toolchain for Java 21.
+- **Gradle**: use the wrapper included in the repository (`./gradlew`); no separate installation is needed.
+- **Lombok**: the code uses [Lombok](https://projectlombok.org/). Enable annotation processing in your IDE (IntelliJ IDEA: *Settings → Build, Execution, Deployment → Compiler → Annotation Processors*).
+
+Build the project and run the tests with:
+
+```sh
+./gradlew build
+```
+
+### Pull Requests
 
 We welcome pull requests! To submit a change, please follow these steps:
-<ol>
-<li>Fork the repository on GitHub.</li>
-<li>Create a new branch from main for your changes. Please give it a descriptive name (e.g., feature/add-prometheus-publisher, fix/result-comparison-bug).</li>
-<li>Make your changes in your branch. Add or update tests as appropriate.</li>
-<li>Ensure the test suite passes locally (`mvn clean verify`) and your code adheres to the style guides outlined below.</li>
-<li>Commit your changes with a clear and descriptive commit message (see our Git Commit Messages style guide).</li>
-<li>Push your changes to your forked repository.</li>
-<li>Create a pull request from your branch to the main repository's main branch. Include a detailed description of your changes and reference any relevant issues.</li>
-<li>Link the PR to any relevant issues.</li>
-</ol>
 
-A maintainer will review your PR. We may suggest some changes or improvements. Once your PR is approved, it will be merged.
+1. Fork the repository on GitHub.
+2. Create a new branch from `master` for your changes, named as described in [Branch Names](#branch-names).
+3. Make your changes in your branch. Add or update tests as appropriate. Every bug fix must include a regression test that fails without the fix.
+4. Ensure the build passes locally (`./gradlew build`) and your code follows the [style guides](#style-guides) below.
+5. Commit your changes with a clear and descriptive commit message (see [Git Commit Messages](#git-commit-messages)).
+6. Push your changes to your forked repository.
+7. Create a pull request from your branch to the `master` branch, with a title as described in [Pull Request Titles](#pull-request-titles). Include a detailed description of your changes and how you tested them.
+8. Link the pull request to any relevant issues.
 
-<h2>Style Guides</h2>
+Before a pull request can be merged, the **Gradle build** and **CodeQL** security scan must pass. A maintainer will review your pull request and may suggest some changes or improvements. Once it is approved, it will be merged.
 
-<h3>Git Commit Messages</h3>
-<ol>
-<li>Use the present tense ("Add feature" not "Added feature").</li>
-<li>Use the imperative mood ("Move cursor to..." not "Moves cursor to...").</li>
-<li>Separate subject from body with a blank line.</li>
-<li>Wrap the body at 72 characters or less.</li>
-<li>Use the body to explain what and why vs. how.</li>
-<li>Reference issues and pull requests liberally after the first line.</li>
-</ol>
+Please keep each pull request focused on a single change. Unrelated fixes or refactoring belong in a separate pull request.
 
-<h3>Java Style Guide</h3>
-<ol>
-<li>We follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)</li>
-<li>Use meaningful variable and method names.</li>
-<li>Keep methods short and focused on a single task.</li>
-<li>Please ensure your code is well-commented, especially for complex logic.</li>
-<li>All new features and bug fixes must be accompanied by unit test.</li>
-</ol>
+## Style Guides
+
+### Branch Names
+
+Prefix the branch name with the type of change, followed by a short, descriptive name in kebab-case:
+
+| Type | Prefix | Example |
+| :--- | :----- | :------ |
+| New feature | `feature/` | `feature/add-prometheus-publisher` |
+| Bug fix | `bug/` | `bug/publisher-invoked-twice` |
+| Other tasks (build, docs, CI, refactoring) | `chore/` | `chore/gradle-only` |
+
+Name a bug branch after the problem, not the fix (e.g. `bug/publisher-invoked-twice`, not `bug/remove-accept-call`).
+
+### Pull Request Titles
+
+Start the title with the type of change, followed by a summary in the imperative mood:
+
+- `Bug: Make ExactCountGuard(N) allow at most N runs`
+- `Feat: Add Prometheus publisher`
+- `Chore: Remove Maven build in favour of Gradle`
+- `Other: ...` for anything that doesn't fit the types above
+
+### Git Commit Messages
+
+1. Use the present tense ("Add feature" not "Added feature").
+2. Use the imperative mood ("Move cursor to..." not "Moves cursor to...").
+3. Separate subject from body with a blank line.
+4. Wrap the body at 72 characters or less.
+5. Use the body to explain what and why vs. how.
+6. Reference issues and pull requests liberally after the first line.
+
+### Java Style Guide
+
+1. We follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) (2-space indentation). The rules are in [`checkstyle.xml`](checkstyle.xml) at the root of the repository.
+2. Use meaningful variable and method names.
+3. Keep methods short and focused on a single task.
+4. Please ensure your code is well-commented, especially for complex logic.
+5. All new features and bug fixes must be accompanied by unit tests.
+6. Keep the core library free of framework and persistence dependencies; integrations (persistence, metrics, Spring, …) belong in their own modules.
 
 Thank you again for your contribution!
