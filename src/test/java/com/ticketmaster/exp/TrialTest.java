@@ -370,4 +370,36 @@ public class TrialTest {
     assertEquals(3, lines.size());
     assertEquals(1, lines.stream().filter(l -> l.startsWith("string-published: ")).count());
   }
+
+  @Test
+  @DisplayName("override() keeps the entry guard: a NEVER guard still keeps the candidate from running")
+  public void testOverride_keepsEntryGuard() {
+    Trial<String, String> guarded = guardedTrial("guarded-then-overridden", ReturnChoices.alwaysControl(), EntryGuard.NEVER);
+
+    Trial<String, String> overridden = guarded.override(
+        Overrides.<String>overrides().doExperimentWhen(Selectors.always()));
+    String output = overridden.apply(ARGS);
+
+    assertEquals("control", output);
+    verify(control, times(1)).apply(eq(ARGS));
+    verify(candidate, never()).apply(anyString());
+    verify(publisher, never()).publish(any(), any());
+  }
+
+  @Test
+  @DisplayName("override() keeps a custom entry guard, which is still consulted")
+  public void testOverride_consultsOriginalEntryGuard() {
+    AtomicInteger guardCalls = new AtomicInteger();
+    EntryGuard countingGuard = (totalRuns, mismatches, dateTime) -> {
+      guardCalls.incrementAndGet();
+      return true;
+    };
+    Trial<String, String> guarded = guardedTrial("counting-guard", ReturnChoices.alwaysControl(), countingGuard);
+
+    guarded.override(Overrides.<String>overrides().returnChoice(ReturnChoices.alwaysCandidate()))
+        .apply(ARGS);
+
+    assertEquals(1, guardCalls.get());
+    verify(candidate, times(1)).apply(eq(ARGS));
+  }
 }
