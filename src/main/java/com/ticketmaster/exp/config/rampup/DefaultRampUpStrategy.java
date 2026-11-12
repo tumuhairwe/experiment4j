@@ -16,10 +16,15 @@ public class DefaultRampUpStrategy implements RampUpStrategy {
         this.period = period;
     }
 
+    /**
+     * Ramps up by {@code increment} once the experiment has run at least once and
+     * has had no more than {@code threshold} mismatches; otherwise no change.
+     */
     @Override
     public int getAdjustment(ExperimentContext context) {
-        //return totalRuns >= 100 && mismatches == 0 && duration.toMinutes() >= 10;
-        if(context.getTotalRuns().get() / context.getMismatches().get() >= threshold){
+        int totalRuns = context.getTotalRuns().get();
+        int mismatches = context.getMismatches().get();
+        if (totalRuns > 0 && mismatches <= threshold) {
             return increment;
         }
         return 0;
