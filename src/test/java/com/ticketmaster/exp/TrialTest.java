@@ -17,16 +17,23 @@
 package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.config.entry.EntryGuard;
+import com.ticketmaster.exp.config.entry.ExactCountGuard;
+import com.ticketmaster.exp.config.entry.ExactMismatchGuard;
+import com.ticketmaster.exp.publish.StringConsumerPublisher;
 import com.ticketmaster.exp.util.ReturnChoices;
 import com.ticketmaster.exp.util.Selectors;
+import com.ticketmaster.exp.util.Try;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -172,30 +179,59 @@ public class TrialTest {
   }
 
   @Test
-  @DisplayName("Trial never runs when EntryGuard is NEVER")
-  public void testApply_neverRun(){
-    String trialName = "trial-that-never-runs";
-    Trial<String, String> subject = new Trial(
-        trialName,
+  @DisplayName("Only control runs, and its result is returned, when EntryGuard is NEVER")
+  public void testApply_guardDenies_runsOnlyControl(){
+    String trialName = "trial-that-never-enters";
+    Trial<String, String> subject = guardedTrial(trialName, ReturnChoices.alwaysControl(), EntryGuard.NEVER);
+
+    String output = subject.apply(ARGS);
+
+    assertEquals("control", output);
+    assertEquals(trialName, subject.getName());
+    verify(control, times(1)).apply(eq(ARGS));
+    verify(candidate, never()).apply(anyString());
+    verify(publisher, never()).publish(any(), any());
+    verify(publisher, never()).accept(any(), any());
+  }
+
+  @Test
+  @DisplayName("Control result is returned when EntryGuard is NEVER, even if returnChoice prefers the candidate")
+  public void testApply_guardDenies_ignoresCandidateReturnChoice(){
+    Trial<String, String> subject = guardedTrial("trial-candidate-choice", ReturnChoices.alwaysCandidate(), EntryGuard.NEVER);
+
+    String output = subject.apply(ARGS);
+
+    assertEquals("control", output);
+    verify(candidate, never()).apply(anyString());
+  }
+
+  @Test
+  @DisplayName("Control exception propagates to the caller when EntryGuard is NEVER")
+  public void testApply_guardDenies_rethrowsControlException(){
+    when(control.apply(anyString())).thenThrow(new IllegalStateException("control failed"));
+    Trial<String, String> subject = guardedTrial("trial-control-throws", ReturnChoices.alwaysControl(), EntryGuard.NEVER);
+
+    IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> subject.apply(ARGS));
+
+    assertEquals("control failed", thrown.getMessage());
+    verify(candidate, never()).apply(anyString());
+  }
+
+  private Trial<String, String> guardedTrial(String name,
+                                             Function<Result<String>, Try<String>> returnChoice,
+                                             EntryGuard entryGuard) {
+    return new Trial<>(
+        name,
         control,
         candidate,
         Executors.newSingleThreadExecutor(),
-        ReturnChoices.alwaysControl(),
+        returnChoice,
         Selectors.always(),
         Objects::equals,
         Objects::equals,
         publisher,
         clock
-    )
-            .withEntryGuard(EntryGuard.NEVER);
-
-    String output = subject.apply(ARGS);
-
-    assertNull(output);
-    assertEquals(trialName, subject.getName());
-    verify(control, never()).apply(anyString());
-    verify(candidate, never()).apply(anyString());
-    verify(publisher, never()).publish(any(), any());
+    ).withEntryGuard(entryGuard);
   }
   @Test
   @DisplayName("Trial runs when EntryGuard is ALWAYS")
@@ -222,5 +258,169 @@ public class TrialTest {
     verify(control, times(1)).apply(eq(ARGS));
     verify(candidate, times(1)).apply(eq(ARGS));
     verify(publisher, times(1)).publish(eq(MatchType.MISMATCH), any(Result.class)); // setUp() to have candidate -> "candidate" && control -> "control"
+  }
+
+  @Test
+  @DisplayName("EntryGuard receives the experiment's running totals, shared across trials")
+  public void testApply_guardReceivesRunningTotals() {
+    List<int[]> seen = new ArrayList<>();
+    EntryGuard recordingGuard = (totalRuns, mismatches, dateTime) -> {
+      seen.add(new int[] {totalRuns, mismatches});
+      return true;
+    };
+    Experiment<String, String> experiment = Experiment.<String, String>named("counted")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+
+    // each call creates a new Trial, as callers do; totals must survive across them
+    experiment.trial().withEntryGuard(recordingGuard).apply(ARGS);  // control != candidate -> mismatch
+    when(candidate.apply(any())).thenReturn("control");
+    experiment.trial().withEntryGuard(recordingGuard).apply(ARGS);  // match
+    experiment.trial().withEntryGuard(recordingGuard).apply(ARGS);
+
+    assertArrayEquals(new int[] {0, 0}, seen.get(0));
+    assertArrayEquals(new int[] {1, 1}, seen.get(1));
+    assertArrayEquals(new int[] {2, 1}, seen.get(2));
+    assertEquals(3, experiment.getStats().getTotalRuns());
+    assertEquals(1, experiment.getStats().getMismatches());
+  }
+
+  @Test
+  @DisplayName("A mismatch-count guard stops the candidate once the limit is exceeded")
+  public void testApply_mismatchGuardStopsCandidateAfterMismatch() {
+    Experiment<String, String> experiment = Experiment.<String, String>named("mismatch-limited")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+    EntryGuard noMismatchesAllowed = new ExactMismatchGuard(0);
+
+    experiment.trial().withEntryGuard(noMismatchesAllowed).apply(ARGS);  // mismatch recorded
+    experiment.trial().withEntryGuard(noMismatchesAllowed).apply(ARGS);  // guard must deny
+
+    verify(candidate, times(1)).apply(anyString());
+  }
+
+  @Test
+  @DisplayName("Control-only runs are not counted towards the experiment's totals")
+  public void testApply_controlOnlyRunsAreNotCounted() {
+    Experiment<String, String> experiment = Experiment.<String, String>named("control-only")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.never());
+
+    experiment.trial().apply(ARGS);
+
+    assertEquals(0, experiment.getStats().getTotalRuns());
+    assertEquals(0, experiment.getStats().getMismatches());
+  }
+
+  @Test
+  @DisplayName("Overrides keep the experiment's running totals")
+  public void testOverride_keepsRunningTotals() {
+    Experiment<String, String> experiment = Experiment.<String, String>named("overridden")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.never());
+
+    experiment.trialWithOverrides(Overrides.<String>overrides().doExperimentWhen(Selectors.always()))
+        .apply(ARGS);
+
+    assertEquals(1, experiment.getStats().getTotalRuns());
+  }
+
+  @Test
+  @DisplayName("Publisher is invoked exactly once per trial")
+  public void testApply_publishesOncePerTrial() {
+    AtomicInteger publishCount = new AtomicInteger();
+    Experiment<String, String> experiment = Experiment.<String, String>named("published-once")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy((matchType, result) -> publishCount.incrementAndGet())
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+
+    experiment.trial().apply(ARGS);
+    experiment.trial().apply(ARGS);
+
+    assertEquals(2, publishCount.get());
+  }
+
+  @Test
+  @DisplayName("A built-in publisher emits one report per trial")
+  public void testApply_builtInPublisherReportsOncePerTrial() {
+    List<String> lines = new ArrayList<>();
+    Experiment<String, String> experiment = Experiment.<String, String>named("string-published")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(new StringConsumerPublisher<>(lines::add))
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+
+    experiment.trial().apply(ARGS);
+
+    // StringConsumerPublisher writes 3 lines per publish: candidate time, control time, match message
+    assertEquals(3, lines.size());
+    assertEquals(1, lines.stream().filter(l -> l.startsWith("string-published: ")).count());
+  }
+
+  @Test
+  @DisplayName("override() keeps the entry guard: a NEVER guard still keeps the candidate from running")
+  public void testOverride_keepsEntryGuard() {
+    Trial<String, String> guarded = guardedTrial("guarded-then-overridden", ReturnChoices.alwaysControl(), EntryGuard.NEVER);
+
+    Trial<String, String> overridden = guarded.override(
+        Overrides.<String>overrides().doExperimentWhen(Selectors.always()));
+    String output = overridden.apply(ARGS);
+
+    assertEquals("control", output);
+    verify(control, times(1)).apply(eq(ARGS));
+    verify(candidate, never()).apply(anyString());
+    verify(publisher, never()).publish(any(), any());
+  }
+
+  @Test
+  @DisplayName("override() keeps a custom entry guard, which is still consulted")
+  public void testOverride_consultsOriginalEntryGuard() {
+    AtomicInteger guardCalls = new AtomicInteger();
+    EntryGuard countingGuard = (totalRuns, mismatches, dateTime) -> {
+      guardCalls.incrementAndGet();
+      return true;
+    };
+    Trial<String, String> guarded = guardedTrial("counting-guard", ReturnChoices.alwaysControl(), countingGuard);
+
+    guarded.override(Overrides.<String>overrides().returnChoice(ReturnChoices.alwaysCandidate()))
+        .apply(ARGS);
+
+    assertEquals(1, guardCalls.get());
+    verify(candidate, times(1)).apply(eq(ARGS));
+  }
+
+  @Test
+  @DisplayName("ExactCountGuard(N) lets the candidate run exactly N times")
+  public void testApply_exactCountGuardAllowsExactlyNRuns() {
+    Experiment<String, String> experiment = Experiment.<String, String>named("count-limited")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+    EntryGuard atMostTwoRuns = new ExactCountGuard(2);
+
+    for (int i = 0; i < 5; i++) {
+      assertEquals("control", experiment.trial().withEntryGuard(atMostTwoRuns).apply(ARGS));
+    }
+
+    verify(candidate, times(2)).apply(anyString());
+    verify(control, times(5)).apply(anyString());
+    assertEquals(2, experiment.getStats().getTotalRuns());
   }
 }

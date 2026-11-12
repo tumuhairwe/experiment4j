@@ -50,6 +50,7 @@ public class Trial<I, O> implements Function<I, O> {
   private final BiFunction<Exception, Exception, Boolean> exceptionsSameWhen;
 
   private final Publisher<O> publisher;
+  private final ExperimentStats stats;
 
   public Trial(
       String name,
@@ -62,6 +63,22 @@ public class Trial<I, O> implements Function<I, O> {
       BiFunction<Exception, Exception, Boolean> exceptionsSameWhen,
       Publisher<O> publisher,
       Clock clock) {
+    this(name, control, candidate, executorService, returnChoice, doExperimentWhen,
+        sameWhen, exceptionsSameWhen, publisher, clock, new ExperimentStats());
+  }
+
+  Trial(
+      String name,
+      Function<I, O> control,
+      Function<I, O> candidate,
+      ExecutorService executorService,
+      Function<Result<O>, Try<O>> returnChoice,
+      BooleanSupplier doExperimentWhen,
+      BiFunction<O, O, Boolean> sameWhen,
+      BiFunction<Exception, Exception, Boolean> exceptionsSameWhen,
+      Publisher<O> publisher,
+      Clock clock,
+      ExperimentStats stats) {
 
     Assert.hasText(name, "name must be non-null and have text");
     Assert.notNull(control, "control must be non-null");
@@ -73,6 +90,7 @@ public class Trial<I, O> implements Function<I, O> {
     Assert.notNull(exceptionsSameWhen, "exceptionsSameWhen must be non-null");
     Assert.notNull(publisher, "publisher must be non-null");
     Assert.notNull(clock, "clock must be non-null");
+    Assert.notNull(stats, "stats must be non-null");
 
     this.name = name;
     this.control = control;
@@ -84,11 +102,12 @@ public class Trial<I, O> implements Function<I, O> {
     this.exceptionsSameWhen = exceptionsSameWhen;
     this.publisher = publisher;
     this.clock = clock;
+    this.stats = stats;
     this.entryGuard = EntryGuard.ALWAYS;
   }
 
   public Trial<I, O> override(Overrides<O> overrides) {
-    return new Trial<>(
+    Trial<I, O> trial = new Trial<>(
         this.name,
         this.control,
         this.candidate,
@@ -98,7 +117,12 @@ public class Trial<I, O> implements Function<I, O> {
         this.sameWhen,
         this.exceptionsSameWhen,
         this.publisher,
-        this.clock);
+        this.clock,
+        this.stats);
+
+    // overrides only replace returnChoice/doExperimentWhen; keep this trial's guard
+    trial.entryGuard = this.entryGuard;
+    return trial;
   }
 
   public Trial<I, O> withEntryGuard(EntryGuard entryGuard) {
@@ -112,15 +136,19 @@ public class Trial<I, O> implements Function<I, O> {
         this.sameWhen,
         this.exceptionsSameWhen,
         this.publisher,
-        this.clock);
+        this.clock,
+        this.stats);
 
     trial.entryGuard = entryGuard;
     return trial;
   }
   public final O apply(I args) {
-    boolean permitted = entryGuard.shouldEnter(0, 0, LocalDateTime.now());
-    if (!permitted){
-        return null;
+    boolean permitted = entryGuard.shouldEnter(
+        stats.totalRunsAsInt(), stats.mismatchesAsInt(), LocalDateTime.now());
+    if (!permitted) {
+      // Not entering the experiment must never change what the caller gets:
+      // run only the control and return its result (or rethrow its exception).
+      return observe(CONTROL, control, args).getTryResult().getOrThrowUnchecked();
     }
     return perform(args).getOrThrowUnchecked();
   }
@@ -174,8 +202,8 @@ public class Trial<I, O> implements Function<I, O> {
     }
 
     MatchType matchType = determineMatch(result);
+    stats.record(matchType);
     publisher.publish(matchType, result);
-    publisher.accept(matchType, result);
     return result;
   }
 

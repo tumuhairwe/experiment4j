@@ -18,6 +18,8 @@ on:
     branches: [ "master" ]
   schedule:
     - cron: '35 10 * * 4'
+  # allow manual runs, e.g. after GitHub disables the schedule for inactivity
+  workflow_dispatch:
 
 jobs:
   analyze:

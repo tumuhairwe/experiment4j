@@ -44,6 +44,8 @@ public class Experiment<I, O> {
   private BiFunction<Exception, Exception, Boolean> exceptionsSameWhen = SameWhens.classesMatch();
   private Publisher<O> publisher = MeasurerPublisher.DEFAULT;
   private Clock clock = Clock.systemUTC();
+  // shared by every Trial this experiment creates, so entry guards see running totals
+  private final ExperimentStats stats = new ExperimentStats();
 
   public Trial<I, O> trialWithOverrides(Overrides<O> overrides) {
     return trial().override(overrides);
@@ -60,7 +62,13 @@ public class Experiment<I, O> {
         this.sameWhen,
         this.exceptionsSameWhen,
         this.publisher,
-        this.clock);
+        this.clock,
+        this.stats);
+  }
+
+  /** Running totals of trials in which both control and candidate ran. */
+  public ExperimentStats getStats() {
+    return stats;
   }
 
   public static <I, O> Experiment<I, O> named(String name) {

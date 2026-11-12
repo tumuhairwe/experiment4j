@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Should have all the state needed to make decisions about running experiments, ramping up/down, etc.
  */
 public class ExperimentContext {
-    private AtomicInteger totalRuns;
-    private AtomicInteger mismatches;
-    private AtomicInteger mismatchRate;
+    private AtomicInteger totalRuns = new AtomicInteger();
+    private AtomicInteger mismatches = new AtomicInteger();
+    private AtomicInteger mismatchRate = new AtomicInteger();
 }
