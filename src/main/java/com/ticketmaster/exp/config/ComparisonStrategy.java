@@ -1,17 +1,11 @@
 package com.ticketmaster.exp.config;
 
-import java.util.Comparator;
+import lombok.Data;
+import java.io.Serializable;
+import java.util.List;
 
-public interface ComparisonStrategy<O> extends Comparator {
-
-    static <O> ComparisonStrategy<O> strictEquality(){
-        return new StrictEqualityComparisonStrategy<>();
-    }
-}
-class StrictEqualityComparisonStrategy<O> implements ComparisonStrategy<O> {
-
-    @Override
-    public int compare(Object o1, Object o2) {
-        return o1.hashCode() == o2.hashCode() ? 0 : 1;
-    }
+@Data
+public class ComparisonStrategy implements Serializable {
+    private String type;
+    private List<String> ignoreFields;
 }

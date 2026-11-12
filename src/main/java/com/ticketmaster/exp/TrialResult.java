@@ -18,9 +18,11 @@ package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.util.Assert;
 import com.ticketmaster.exp.util.Try;
+import lombok.Data;
 
 import java.time.Duration;
 
+@Data
 public class TrialResult<T> {
   private final TrialType trialType;
   private final Duration duration;

@@ -1,0 +1,41 @@
+{
+  "key": "canary-release-experiment-02",
+  "experimentConfig": {
+    "startDate": "2026-04-01",
+    "endDate": "2026-06-30",
+    "rampUpConfig": {
+      "enabled": true,
+      "strategy": "canary",
+      "steps": [
+        {
+          "ringName": "internal_employees",
+          "description": "Rollout to internal staff for initial feedback.",
+          "durationDays": 7
+        },
+        {
+          "ringName": "beta_users_geo_us_west",
+          "description": "Expand to beta users in a specific region.",
+          "durationDays": 14
+        },
+        {
+          "trafficPercentage": 25,
+          "description": "Begin rolling out to a percentage of the general user base.",
+          "durationDays": 21
+        },
+        {
+          "trafficPercentage": 100,
+          "description": "Full rollout to all users.",
+          "durationDays": 0
+        }
+      ]
+    },
+    "entryGuardClassName": "com.ticketmaster.exp.entry.AudienceEntryGuard",
+    "maxSampleSize": 5000000,
+    "initialTrafficPercentage": 0,
+    "maxTrafficPercentage": 100,
+    "comparisonStrategy": {
+      "type": "DEEP_EQUAL",
+      "ignoreFields": ["timestamp", "requestId"]
+    }
+  }
+}

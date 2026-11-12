@@ -16,18 +16,9 @@
 
 package com.ticketmaster.exp;
 
-import com.ticketmaster.exp.publish.PrintStreamPublisher;
-import com.ticketmaster.exp.util.ReturnChoices;
-import com.ticketmaster.exp.util.SameWhens;
-import com.ticketmaster.exp.util.Selectors;
 import org.junit.jupiter.api.Test;
 
-import java.time.Clock;
-import java.util.Objects;
-import java.util.concurrent.Executors;
 import java.util.function.Function;
-
-import static com.ticketmaster.exp.Science.science;
 
 public class ExamplesTest {
   public static class Person {
@@ -50,6 +41,8 @@ public class ExamplesTest {
 
   Function<Person, String> oldToName = (p) -> p.getFirstName() + " " + p.getLastName();
   Function<Person, String> newToName = (p) -> "%s %s".formatted(p.getFirstName(), p.getLastName());
+  //can do a DB lookup to determine if this request is unique (to count towards Fixed Run Experiment)
+  Function<Person, Boolean> isUnique = (p) -> p.getFirstName().length() + p.getLastName().length() < 10;
 
   Person[] people = {
       new Person("George", "Washington"),
@@ -59,9 +52,9 @@ public class ExamplesTest {
 
   @Test
   public void showInlineSyntax() throws Exception {
-    for (Person person : people) {
-      inlineSyntax(person);
-    }
+//    for (Person person : people) {
+//      inlineSyntax(person);
+//    }
 
   }
 
@@ -70,27 +63,33 @@ public class ExamplesTest {
    * possible to the execution of the experiment
    * @throws Exception
    */
-  public void inlineSyntax(Person person) throws Exception {
-    String personName = science()
-        .experiment(
-            "person-name",
-            () -> Experiment.<Person, String>named("person-name")
-                .control(oldToName)
-                .candidate(newToName)
-                .exceptionsSameWhen(SameWhens.messagesMatch())
-                    //.exceptionsSameWhen(SameWhens.causesMatch())
-                .sameWhen(Objects::equals)
-                .doExperimentWhen(Selectors.always())
-                .returnChoice(ReturnChoices.alwaysControl())
-                .withExecutorService(Executors.newSingleThreadExecutor())
-                .publishedBy(new PrintStreamPublisher<String>())
-                .timedBy(Clock.systemUTC())
-        )
-        .trialWithOverrides(Overrides.<String>overrides()
-                .doExperimentWhen(Selectors.percent(5))
-                .returnChoice(ReturnChoices.candidateWhen(Selectors.percent(5)))
-        )
-        .apply(person);
-
-  }
+//  public void inlineSyntax(Person person) throws Exception {
+//    Trial<Person, String> trial = science()
+//            .experiment(
+//                    "person-name",
+//                    () -> Experiment.<Person, String>named("person-name")
+//                            .control(oldToName)
+//                            .candidate(newToName)
+//                            .exceptionsSameWhen(SameWhens.messagesMatch())
+//                            //.exceptionsSameWhen(SameWhens.causesMatch())
+//                            .sameWhen(Objects::equals)
+//                            .doExperimentWhen(Selectors.always())
+//                            .returnChoice(ReturnChoices.alwaysControl())
+//                            .withExecutorService(Executors.newSingleThreadExecutor())
+//                            .publishedBy(new PrintStreamPublisher<>())
+//                            .timedBy(Clock.systemUTC())
+////                    .exitCondition(request -> request
+////                            .maxDuration(java.time.Duration.ofSeconds(2))
+////                            .maxControlExecs(100)
+////                            .maxCandidateExecs(100)
+////                            .minExecsPerVariant(10)
+////                            .uniqueRequestsForFixedRun(isUnique, 20)
+//            )
+//            .trialWithOverrides(Overrides.<String>overrides()
+//                    .doExperimentWhen(Selectors.percent(5))
+//                    .returnChoice(ReturnChoices.candidateWhen(Selectors.percent(5)))
+//            );
+//    String personName = trial.apply(person);
+//
+//  }
 }

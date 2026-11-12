@@ -1,0 +1,42 @@
+{
+  "key": "linear-refactor-experiment-01",
+  "experimentConfig": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-03-31",
+    "rampUpConfig": {
+      "enabled": true,
+      "strategy": "linear",
+      "steps": [
+        {
+          "trafficPercentage": 10,
+          "durationDays": 7
+        },
+        {
+          "trafficPercentage": 25,
+          "durationDays": 14
+        },
+        {
+          "trafficPercentage": 50,
+          "durationDays": 14
+        },
+        {
+          "trafficPercentage": 100,
+          "durationDays": 0
+        }
+      ]
+    },
+    "entryGuardClassName": "com.ticketmaster.exp.entry.DefaultEntryGuard",
+    "maxSampleSize": 1000000,
+    "initialTrafficPercentage": 5,
+    "maxTrafficPercentage": 100,
+    "minRunsForRampUp": 1000,
+    "mismatchThresholdForRampUp": 50,
+    "comparisonStrategy": {
+      "type": "DEEP_EQUAL",
+      "ignoreFields": [
+        "timestamp",
+        "requestId"
+      ]
+    }
+  }
+}
