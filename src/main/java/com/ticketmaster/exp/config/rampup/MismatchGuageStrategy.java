@@ -32,11 +32,15 @@ public class MismatchGuageStrategy implements RampUpStrategy {
         this.increment = increment;
     }
 
+    /**
+     * Ramps up by {@code increment} once the experiment has run at least once and
+     * has had no more than {@code baseline} mismatches; otherwise no change.
+     */
     @Override
     public int getAdjustment(ExperimentContext context) {
-        //return mismatches <= baseline && duration.compareTo(this.duration) >= 0;
-        //return mismatches <= baseline ? increment : 0;
-        if(context.getTotalRuns().get() / context.getMismatches().get() >= baseline){
+        int totalRuns = context.getTotalRuns().get();
+        int mismatches = context.getMismatches().get();
+        if (totalRuns > 0 && mismatches <= baseline) {
             return increment;
         }
         return 0;
