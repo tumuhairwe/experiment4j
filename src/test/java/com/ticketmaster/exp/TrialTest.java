@@ -18,6 +18,7 @@ package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.config.entry.EntryGuard;
 import com.ticketmaster.exp.config.entry.ExactMismatchGuard;
+import com.ticketmaster.exp.publish.StringConsumerPublisher;
 import com.ticketmaster.exp.util.ReturnChoices;
 import com.ticketmaster.exp.util.Selectors;
 import com.ticketmaster.exp.util.Try;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -332,5 +334,40 @@ public class TrialTest {
         .apply(ARGS);
 
     assertEquals(1, experiment.getStats().getTotalRuns());
+  }
+
+  @Test
+  @DisplayName("Publisher is invoked exactly once per trial")
+  public void testApply_publishesOncePerTrial() {
+    AtomicInteger publishCount = new AtomicInteger();
+    Experiment<String, String> experiment = Experiment.<String, String>named("published-once")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy((matchType, result) -> publishCount.incrementAndGet())
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+
+    experiment.trial().apply(ARGS);
+    experiment.trial().apply(ARGS);
+
+    assertEquals(2, publishCount.get());
+  }
+
+  @Test
+  @DisplayName("A built-in publisher emits one report per trial")
+  public void testApply_builtInPublisherReportsOncePerTrial() {
+    List<String> lines = new ArrayList<>();
+    Experiment<String, String> experiment = Experiment.<String, String>named("string-published")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(new StringConsumerPublisher<>(lines::add))
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+
+    experiment.trial().apply(ARGS);
+
+    // StringConsumerPublisher writes 3 lines per publish: candidate time, control time, match message
+    assertEquals(3, lines.size());
+    assertEquals(1, lines.stream().filter(l -> l.startsWith("string-published: ")).count());
   }
 }

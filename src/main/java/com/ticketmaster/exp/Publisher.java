@@ -18,6 +18,18 @@ package com.ticketmaster.exp;
 
 import java.util.function.BiConsumer;
 
+/**
+ * Receives the outcome of every trial in which both control and candidate ran.
+ *
+ * <p>Implement {@link #publish}; {@link #accept} is the same operation, provided
+ * so a publisher can be used wherever a {@link BiConsumer} is expected.
+ */
+@FunctionalInterface
 public interface Publisher<T> extends BiConsumer<MatchType, Result<T>> {
   void publish(MatchType matchType, Result<T> payload);
+
+  @Override
+  default void accept(MatchType matchType, Result<T> payload) {
+    publish(matchType, payload);
+  }
 }

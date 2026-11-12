@@ -200,7 +200,6 @@ public class Trial<I, O> implements Function<I, O> {
     MatchType matchType = determineMatch(result);
     stats.record(matchType);
     publisher.publish(matchType, result);
-    publisher.accept(matchType, result);
     return result;
   }
 
