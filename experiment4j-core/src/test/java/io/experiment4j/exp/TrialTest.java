@@ -21,6 +21,7 @@ import io.experiment4j.exp.config.entry.ExactCountGuard;
 import io.experiment4j.exp.config.entry.ExactMismatchGuard;
 import io.experiment4j.exp.publish.StringConsumerPublisher;
 import io.experiment4j.exp.util.ReturnChoices;
+import io.experiment4j.exp.util.SameWhens;
 import io.experiment4j.exp.util.Selectors;
 import io.experiment4j.exp.util.Try;
 import org.junit.jupiter.api.BeforeEach;
@@ -501,5 +502,22 @@ public class TrialTest {
     } finally {
       Thread.interrupted();  // clear the flag for other tests
     }
+  }
+
+  @Test
+  @DisplayName("messagesMatch() compares exceptions without messages instead of failing the caller")
+  public void testApply_exceptionsWithoutMessagesAreCompared() {
+    IllegalStateException controlFailure = new IllegalStateException();
+    List<MatchType> published = new ArrayList<>();
+    Experiment<String, String> experiment = experimentWith(
+        s -> { throw controlFailure; },
+        s -> { throw new IllegalStateException(); },
+        (matchType, result) -> published.add(matchType))
+        .exceptionsSameWhen(SameWhens.messagesMatch());
+
+    IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> experiment.trial().apply(ARGS));
+
+    assertSame(controlFailure, thrown);  // the control's own exception, not a NullPointerException
+    assertEquals(List.of(MatchType.EXCEPTION_MATCH), published);
   }
 }

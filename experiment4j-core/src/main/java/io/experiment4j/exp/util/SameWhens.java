@@ -17,6 +17,7 @@
 package io.experiment4j.exp.util;
 
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 public class SameWhens {
@@ -27,15 +28,17 @@ public class SameWhens {
     return (M m1, M m2) -> m1 != null && m2 != null && m1.getClass().equals(m2.getClass());
   }
 
+  /** Exceptions match when their messages are equal; two missing (null) messages are equal. */
   public static BiFunction<Exception, Exception, Boolean> messagesMatch() {
-    return (Exception e1, Exception e2) -> e1.getMessage().equals(e2.getMessage());
+    return (Exception e1, Exception e2) -> Objects.equals(e1.getMessage(), e2.getMessage());
   }
 
   public static <M> BiFunction<M, M, Boolean> fromComparator(Comparator<M> comparator) {
     return (M m1, M m2) -> comparator.compare(m1, m2) == 0;
   }
 
+  /** Exceptions match when their causes are equal; two missing (null) causes are equal. */
   public static BiFunction<Exception, Exception, Boolean> causesMatch() {
-    return (Exception e1, Exception e2) -> e1.getCause().equals(e2.getCause());
+    return (Exception e1, Exception e2) -> Objects.equals(e1.getCause(), e2.getCause());
   }
 }
