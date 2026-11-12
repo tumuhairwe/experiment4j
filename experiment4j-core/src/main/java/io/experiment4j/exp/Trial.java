@@ -190,15 +190,25 @@ public class Trial<I, O> implements Function<I, O> {
     Future<TrialResult<O>> controlFuture = executorService.submit(callableControl);
     Future<TrialResult<O>> candidateFuture = executorService.submit(callableCandidate);
 
-    Result<O> result = null;
+    Result<O> result;
     try {
       result = new Result<>(
           name,
           timestamp,
           controlFuture.get(),
           candidateFuture.get());
-    } catch (InterruptedException|ExecutionException e) {
-      throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("interrupted while waiting for trial " + name, e);
+    } catch (ExecutionException e) {
+      // observe() captures every candidate failure and every control Exception,
+      // so only an Error thrown by the control gets here: rethrow it unchanged,
+      // as it would be if the control ran without the experiment.
+      Throwable cause = e.getCause();
+      if (cause instanceof Error error) {
+        throw error;
+      }
+      throw new IllegalStateException("unexpected failure in trial " + name, cause);
     }
 
     MatchType matchType = determineMatch(result);
@@ -219,6 +229,12 @@ public class Trial<I, O> implements Function<I, O> {
       value = callable.apply(args);
     } catch (Exception t) {
       exception = t;
+    } catch (Error error) {
+      if (trialType == CONTROL) {
+        throw error;  // the control's errors reach the caller unchanged
+      }
+      // the candidate must never affect the caller: record its error as a failure
+      exception = new CandidateError(error);
     }
     Instant end = clock.instant();
     Duration duration = Duration.between(start, end);
