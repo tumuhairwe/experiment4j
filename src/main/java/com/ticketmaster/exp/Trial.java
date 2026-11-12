@@ -107,7 +107,7 @@ public class Trial<I, O> implements Function<I, O> {
   }
 
   public Trial<I, O> override(Overrides<O> overrides) {
-    return new Trial<>(
+    Trial<I, O> trial = new Trial<>(
         this.name,
         this.control,
         this.candidate,
@@ -119,6 +119,10 @@ public class Trial<I, O> implements Function<I, O> {
         this.publisher,
         this.clock,
         this.stats);
+
+    // overrides only replace returnChoice/doExperimentWhen; keep this trial's guard
+    trial.entryGuard = this.entryGuard;
+    return trial;
   }
 
   public Trial<I, O> withEntryGuard(EntryGuard entryGuard) {
