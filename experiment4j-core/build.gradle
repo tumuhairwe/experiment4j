@@ -12,18 +12,18 @@ dependencies {
 }
 
 // Fail the build (and CI) if coverage drops below these minimums.
-// Set just below the measured level (line 97.3%, branch 82.5%); raise them
+// Set just below the measured level (line 99.6%, branch 97.8%); raise them
 // as coverage improves.
 tasks.named('jacocoTestCoverageVerification') {
     violationRules {
         rule {
             limit {
                 counter = 'LINE'
-                minimum = 0.95
+                minimum = 0.98
             }
             limit {
                 counter = 'BRANCH'
-                minimum = 0.80
+                minimum = 0.95
             }
         }
     }

@@ -120,7 +120,7 @@ Adopters supply their own `DataSource` or `EntityManagerFactory`; the library do
 - [x] Continuous integration with Gradle on every pull request.
 - [x] CodeQL security scanning on every pull request.
 - [x] Regression tests accompany every bug fix.
-- [x] Code coverage reporting (JaCoCo) with a minimum threshold enforced in CI (core: 95% lines, 80% branches).
+- [x] Code coverage reporting (JaCoCo) with a minimum threshold enforced in CI (core: 98% lines, 95% branches).
 - [x] Group ID `io.tumuhairwe` and package `io.experiment4j.exp`.
 - [ ] Decide on the version scheme (the build is currently `2.0.0-SNAPSHOT`).
 - [ ] Publish releases to Maven Central.
