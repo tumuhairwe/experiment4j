@@ -17,6 +17,7 @@
 package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.config.entry.EntryGuard;
+import com.ticketmaster.exp.config.entry.ExactMismatchGuard;
 import com.ticketmaster.exp.util.ReturnChoices;
 import com.ticketmaster.exp.util.Selectors;
 import com.ticketmaster.exp.util.Try;
@@ -26,6 +27,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -252,5 +255,82 @@ public class TrialTest {
     verify(control, times(1)).apply(eq(ARGS));
     verify(candidate, times(1)).apply(eq(ARGS));
     verify(publisher, times(1)).publish(eq(MatchType.MISMATCH), any(Result.class)); // setUp() to have candidate -> "candidate" && control -> "control"
+  }
+
+  @Test
+  @DisplayName("EntryGuard receives the experiment's running totals, shared across trials")
+  public void testApply_guardReceivesRunningTotals() {
+    List<int[]> seen = new ArrayList<>();
+    EntryGuard recordingGuard = (totalRuns, mismatches, dateTime) -> {
+      seen.add(new int[] {totalRuns, mismatches});
+      return true;
+    };
+    Experiment<String, String> experiment = Experiment.<String, String>named("counted")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+
+    // each call creates a new Trial, as callers do; totals must survive across them
+    experiment.trial().withEntryGuard(recordingGuard).apply(ARGS);  // control != candidate -> mismatch
+    when(candidate.apply(any())).thenReturn("control");
+    experiment.trial().withEntryGuard(recordingGuard).apply(ARGS);  // match
+    experiment.trial().withEntryGuard(recordingGuard).apply(ARGS);
+
+    assertArrayEquals(new int[] {0, 0}, seen.get(0));
+    assertArrayEquals(new int[] {1, 1}, seen.get(1));
+    assertArrayEquals(new int[] {2, 1}, seen.get(2));
+    assertEquals(3, experiment.getStats().getTotalRuns());
+    assertEquals(1, experiment.getStats().getMismatches());
+  }
+
+  @Test
+  @DisplayName("A mismatch-count guard stops the candidate once the limit is exceeded")
+  public void testApply_mismatchGuardStopsCandidateAfterMismatch() {
+    Experiment<String, String> experiment = Experiment.<String, String>named("mismatch-limited")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+    EntryGuard noMismatchesAllowed = new ExactMismatchGuard(0);
+
+    experiment.trial().withEntryGuard(noMismatchesAllowed).apply(ARGS);  // mismatch recorded
+    experiment.trial().withEntryGuard(noMismatchesAllowed).apply(ARGS);  // guard must deny
+
+    verify(candidate, times(1)).apply(anyString());
+  }
+
+  @Test
+  @DisplayName("Control-only runs are not counted towards the experiment's totals")
+  public void testApply_controlOnlyRunsAreNotCounted() {
+    Experiment<String, String> experiment = Experiment.<String, String>named("control-only")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.never());
+
+    experiment.trial().apply(ARGS);
+
+    assertEquals(0, experiment.getStats().getTotalRuns());
+    assertEquals(0, experiment.getStats().getMismatches());
+  }
+
+  @Test
+  @DisplayName("Overrides keep the experiment's running totals")
+  public void testOverride_keepsRunningTotals() {
+    Experiment<String, String> experiment = Experiment.<String, String>named("overridden")
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.never());
+
+    experiment.trialWithOverrides(Overrides.<String>overrides().doExperimentWhen(Selectors.always()))
+        .apply(ARGS);
+
+    assertEquals(1, experiment.getStats().getTotalRuns());
   }
 }
