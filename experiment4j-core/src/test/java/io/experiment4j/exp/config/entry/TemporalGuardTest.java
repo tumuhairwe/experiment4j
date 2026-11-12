@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TemporalGuardTest {
@@ -44,5 +45,13 @@ public class TemporalGuardTest {
 
         boolean shouldEnter = guard.shouldEnter(0, 0, tomorrow);
         assertFalse(shouldEnter);
+    }
+
+    @Test
+    @DisplayName("canEnter() rejects a guard configured with neither a date window nor a time window")
+    public void testCanEnter_unconfiguredGuardThrows() {
+        TemporalGuard guard = new TemporalGuard((LocalDateTime) null, (LocalDateTime) null);
+
+        assertThrows(IllegalStateException.class, () -> guard.canEnter(LocalDateTime.now()));
     }
 }

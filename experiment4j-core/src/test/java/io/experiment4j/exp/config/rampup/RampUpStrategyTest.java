@@ -76,6 +76,12 @@ public class RampUpStrategyTest {
   }
 
   @Test
+  @DisplayName("DefaultRampUpStrategy exposes its increment")
+  public void testDefaultIncrement() {
+    assertEquals(10, ((DefaultRampUpStrategy) RampUpStrategy.DEFAULT).getIncrement());
+  }
+
+  @Test
   @DisplayName("A new ExperimentContext can be evaluated without a NullPointerException")
   public void testFreshContext() {
     ExperimentContext fresh = new ExperimentContext();

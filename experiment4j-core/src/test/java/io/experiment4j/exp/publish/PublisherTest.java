@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 
 import static io.experiment4j.exp.TrialType.CANDIDATE;
 import static io.experiment4j.exp.TrialType.CONTROL;
@@ -74,5 +75,26 @@ public class PublisherTest {
     publisher.accept(MatchType.MATCH, null);
 
     assertEquals(1, publishCount.get());
+  }
+
+  @Test
+  public void testMeasurerPublisherAsBiConsumerPublishesOnce() {
+    Measurer<String> m = mock(Measurer.class);
+    Publisher publisher = MeasurerPublisher.builder()
+        .matchCountNamer(PatternMatchCountNamer.DEFAULT)
+        .durationNamer(PatternDurationNamer.DEFAULT)
+        .measurer(m)
+        .build();
+    Result<String> result = new Result(
+        "experiment",
+        Instant.now(),
+        new TrialResult(CONTROL, Duration.ofSeconds(10), null, "bar"),
+        new TrialResult(CANDIDATE, Duration.ofSeconds(5), null, "foo"));
+
+    // used as a plain BiConsumer, e.g. by code that only knows java.util.function
+    BiConsumer<Object, Object> consumer = publisher;
+    consumer.accept(MatchType.MISMATCH, result);
+
+    verify(m, times(1)).measureCount("exp.experiment.match.type.mismatch.count", 1);
   }
 }

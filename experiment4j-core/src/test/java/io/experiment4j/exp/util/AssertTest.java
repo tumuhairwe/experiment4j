@@ -75,7 +75,7 @@ public class AssertTest {
   public void testHasTextShouldThrowExceptionWhenEmpty() throws Exception {
     // EXPECT
     IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-      Assert.hasText(null, "has text");
+      Assert.hasText("", "has text");
     });
 
     // WHEN
