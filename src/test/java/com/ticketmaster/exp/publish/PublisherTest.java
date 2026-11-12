@@ -24,9 +24,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ticketmaster.exp.TrialType.CANDIDATE;
 import static com.ticketmaster.exp.TrialType.CONTROL;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,4 +66,13 @@ public class PublisherTest {
     verify(m, times(1)).measureDuration("exp.experiment.trial.type.control.dur", controlD);
   }
 
+  @Test
+  public void testAcceptDelegatesToPublishOnce() {
+    AtomicInteger publishCount = new AtomicInteger();
+    Publisher<String> publisher = (matchType, result) -> publishCount.incrementAndGet();
+
+    publisher.accept(MatchType.MATCH, null);
+
+    assertEquals(1, publishCount.get());
+  }
 }

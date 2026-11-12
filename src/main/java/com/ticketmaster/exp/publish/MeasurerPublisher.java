@@ -35,10 +35,12 @@ public class MeasurerPublisher<K> implements Publisher {
   private final MatchCountNamer matchCountNamer;
   private final DurationNamer durationNamer;
 
-    @Override
-    public void accept(Object matchType, Object payload) {
-        publish((MatchType) matchType, (Result) payload);
-    }
+  // Needed only because this class implements the raw Publisher type, so it does
+  // not inherit Publisher's generic default accept(). Delegates to publish().
+  @Override
+  public void accept(Object matchType, Object payload) {
+    publish((MatchType) matchType, (Result) payload);
+  }
 
   public static class Builder<K> {
     private Measurer measurer = PrintStreamMeasurer.DEFAULT;
