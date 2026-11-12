@@ -3,12 +3,19 @@
 
 description = 'experiment4j core: run, compare and publish control/candidate experiments'
 
+// testFixtures: contract tests (e.g. ExperimentStateStoreContract) that every
+// store implementation, including those in experiment4j-jpa and -jdbc, must pass.
+apply plugin: 'java-test-fixtures'
+
 def lombokVersion = '1.18.42'
 dependencies {
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testFixturesApi platform("org.junit:junit-bom:${junitVersion}")
+    testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
 }
 
 // Fail the build (and CI) if coverage drops below these minimums.

@@ -82,7 +82,8 @@ Adopters supply their own `DataSource` or `EntityManagerFactory`; the library do
 - [ ] External, reloadable configuration (file or database) for experiments and rollouts.
 - [x] Custom result matching logic (`sameWhen`, `exceptionsSameWhen`).
 - [x] Restructure into `experiment4j-core`, `experiment4j-jpa` and `experiment4j-jdbc` modules.
-- [ ] Persistence interfaces in core, with in-memory defaults.
+- [x] Persistence interfaces in core for experiment definitions and rollout state (with an audit trail of transitions and optimistic locking), with in-memory defaults and reusable contract tests.
+- [ ] Persistence interfaces for run results and per-minute metrics.
 - [ ] JPA (Hibernate) and plain-JDBC persistence modules, with versioned SQL schema scripts.
 - [ ] Write run results asynchronously and in batches, off the request thread.
 - [ ] Release v0.2.0.
