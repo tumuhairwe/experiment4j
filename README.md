@@ -59,7 +59,7 @@ There are only a few main domain concepts for this framework:
 
 DSL Syntax
 ----------
-Some examples of the DSL syntax are found here: [ExperimentTest.java](src/test/java/com/ticketmaster/exp/ExperimentTest.java) and [ExamplesTest.java](src/test/java/com/ticketmaster/exp/ExamplesTest.java)
+Some examples of the DSL syntax are found here: [ExperimentTest.java](experiment4j-core/src/test/java/io/experiment4j/exp/ExperimentTest.java) and [ExamplesTest.java](experiment4j-core/src/test/java/io/experiment4j/exp/ExamplesTest.java)
 
 Here is a contrived example Experiment that has been annotated to expose all of the bells and whistles:
 
@@ -180,6 +180,22 @@ An _Entry Guard_ decides whether a trial may enter the experiment. It receives t
     // Running totals are available from the experiment
     long runs = experiment.getStats().getTotalRuns();
     long mismatches = experiment.getStats().getMismatches();
+```
+
+Modules
+-------
+All classes live under the `io.experiment4j.exp` package; artifacts are published under the `io.tumuhairwe` group.
+
+| Module | Purpose |
+| :----- | :------ |
+| `experiment4j-core` | The experimentation engine. No framework or persistence dependencies. |
+| `experiment4j-jpa` | Optional JPA (Hibernate) persistence of experiment state. _Not yet implemented._ |
+| `experiment4j-jdbc` | Optional plain-JDBC persistence of experiment state. _Not yet implemented._ |
+
+```groovy
+dependencies {
+    implementation 'io.tumuhairwe:experiment4j-core:2.0.0-SNAPSHOT'
+}
 ```
 
 Requirements & Building

@@ -110,6 +110,6 @@ Start the title with the type of change, followed by a summary in the imperative
 3. Keep methods short and focused on a single task.
 4. Please ensure your code is well-commented, especially for complex logic.
 5. All new features and bug fixes must be accompanied by unit tests.
-6. Keep the core library free of framework and persistence dependencies; integrations (persistence, metrics, Spring, …) belong in their own modules.
+6. Keep `experiment4j-core` free of framework and persistence dependencies; integrations (persistence, metrics, Spring, …) belong in their own modules, such as `experiment4j-jpa` and `experiment4j-jdbc`.
 
 Thank you again for your contribution!
