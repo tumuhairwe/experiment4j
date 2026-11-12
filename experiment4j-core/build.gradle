@@ -1,0 +1,12 @@
+// The experimentation engine. Keep this module free of framework and
+// persistence dependencies; integrations belong in their own modules.
+
+description = 'experiment4j core: run, compare and publish control/candidate experiments'
+
+def lombokVersion = '1.18.42'
+dependencies {
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+}

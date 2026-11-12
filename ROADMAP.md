@@ -81,7 +81,7 @@ Adopters supply their own `DataSource` or `EntityManagerFactory`; the library do
 - [x] Programmatic configuration for enabling/disabling experiments and setting sampling rates.
 - [ ] External, reloadable configuration (file or database) for experiments and rollouts.
 - [x] Custom result matching logic (`sameWhen`, `exceptionsSameWhen`).
-- [ ] Restructure into `experiment4j-core`, `experiment4j-jpa` and `experiment4j-jdbc` modules.
+- [x] Restructure into `experiment4j-core`, `experiment4j-jpa` and `experiment4j-jdbc` modules.
 - [ ] Persistence interfaces in core, with in-memory defaults.
 - [ ] JPA (Hibernate) and plain-JDBC persistence modules, with versioned SQL schema scripts.
 - [ ] Write run results asynchronously and in batches, off the request thread.
@@ -121,7 +121,8 @@ Adopters supply their own `DataSource` or `EntityManagerFactory`; the library do
 - [x] CodeQL security scanning on every pull request.
 - [x] Regression tests accompany every bug fix.
 - [ ] Code coverage reporting (JaCoCo) with a minimum threshold enforced in CI.
-- [ ] Decide on the version scheme (the build is currently `2.0.0-SNAPSHOT`) and the group ID / package name for the first release.
+- [x] Group ID `io.tumuhairwe` and package `io.experiment4j.exp`.
+- [ ] Decide on the version scheme (the build is currently `2.0.0-SNAPSHOT`).
 - [ ] Publish releases to Maven Central.
 
 ## How to Contribute
