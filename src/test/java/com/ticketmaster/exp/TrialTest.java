@@ -19,6 +19,7 @@ package com.ticketmaster.exp;
 import com.ticketmaster.exp.config.entry.EntryGuard;
 import com.ticketmaster.exp.util.ReturnChoices;
 import com.ticketmaster.exp.util.Selectors;
+import com.ticketmaster.exp.util.Try;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -172,30 +173,59 @@ public class TrialTest {
   }
 
   @Test
-  @DisplayName("Trial never runs when EntryGuard is NEVER")
-  public void testApply_neverRun(){
-    String trialName = "trial-that-never-runs";
-    Trial<String, String> subject = new Trial(
-        trialName,
+  @DisplayName("Only control runs, and its result is returned, when EntryGuard is NEVER")
+  public void testApply_guardDenies_runsOnlyControl(){
+    String trialName = "trial-that-never-enters";
+    Trial<String, String> subject = guardedTrial(trialName, ReturnChoices.alwaysControl(), EntryGuard.NEVER);
+
+    String output = subject.apply(ARGS);
+
+    assertEquals("control", output);
+    assertEquals(trialName, subject.getName());
+    verify(control, times(1)).apply(eq(ARGS));
+    verify(candidate, never()).apply(anyString());
+    verify(publisher, never()).publish(any(), any());
+    verify(publisher, never()).accept(any(), any());
+  }
+
+  @Test
+  @DisplayName("Control result is returned when EntryGuard is NEVER, even if returnChoice prefers the candidate")
+  public void testApply_guardDenies_ignoresCandidateReturnChoice(){
+    Trial<String, String> subject = guardedTrial("trial-candidate-choice", ReturnChoices.alwaysCandidate(), EntryGuard.NEVER);
+
+    String output = subject.apply(ARGS);
+
+    assertEquals("control", output);
+    verify(candidate, never()).apply(anyString());
+  }
+
+  @Test
+  @DisplayName("Control exception propagates to the caller when EntryGuard is NEVER")
+  public void testApply_guardDenies_rethrowsControlException(){
+    when(control.apply(anyString())).thenThrow(new IllegalStateException("control failed"));
+    Trial<String, String> subject = guardedTrial("trial-control-throws", ReturnChoices.alwaysControl(), EntryGuard.NEVER);
+
+    IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> subject.apply(ARGS));
+
+    assertEquals("control failed", thrown.getMessage());
+    verify(candidate, never()).apply(anyString());
+  }
+
+  private Trial<String, String> guardedTrial(String name,
+                                             Function<Result<String>, Try<String>> returnChoice,
+                                             EntryGuard entryGuard) {
+    return new Trial<>(
+        name,
         control,
         candidate,
         Executors.newSingleThreadExecutor(),
-        ReturnChoices.alwaysControl(),
+        returnChoice,
         Selectors.always(),
         Objects::equals,
         Objects::equals,
         publisher,
         clock
-    )
-            .withEntryGuard(EntryGuard.NEVER);
-
-    String output = subject.apply(ARGS);
-
-    assertNull(output);
-    assertEquals(trialName, subject.getName());
-    verify(control, never()).apply(anyString());
-    verify(candidate, never()).apply(anyString());
-    verify(publisher, never()).publish(any(), any());
+    ).withEntryGuard(entryGuard);
   }
   @Test
   @DisplayName("Trial runs when EntryGuard is ALWAYS")
