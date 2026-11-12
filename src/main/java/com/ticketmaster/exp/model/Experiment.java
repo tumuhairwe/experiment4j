@@ -1,23 +1,18 @@
 package com.ticketmaster.exp.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.util.UUID;
-import java.util.function.BiPredicate;
-
+import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.UUID;
 
 /**
  * Represents the configuration for a single scientific experiment.
  */
 @Data
 @Entity
-@Table(name = "experiment")
+@Table(name = "experiment", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"}, name = "uk_experiment_name")
+})
 public class Experiment {
 
     @Id

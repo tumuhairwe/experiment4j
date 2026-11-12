@@ -27,7 +27,11 @@ dependencies {
     runtimeOnly 'com.h2database:h2:2.1.214'
 
     // InfluxDB client library for connecting to the time-series database
-    implementation 'org.influxdb:influxdb-java:2.23'
+    //implementation 'org.influxdb:influxdb-java:2.23'
+    //implementation 'com.influxdb:influxdb3-java:1.5.0'
+    implementation('com.influxdb:influxdb-client-java:6.6.0')
+    //implementation('com.squareup.okhttp3:okhttp:4.11.0')
+
     // SLF4J for logging, which is a runtime dependency for the InfluxDB client
     runtimeOnly("org.slf4j:slf4j-simple:2.0.13")
 
@@ -42,6 +46,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation libs.org.mockito.mockito.core
+    testImplementation('org.mockito:mockito-inline:5.5.0')
 
     def lombokVersion = '1.18.42'
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
@@ -58,10 +63,10 @@ java {
     withSourcesJar()
     withJavadocJar()
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 test {

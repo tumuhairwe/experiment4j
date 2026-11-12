@@ -10,7 +10,7 @@ public class ExactMismatchGuardTest {
     @Test
     @DisplayName("when the exact mismatch count is met, the guard should pass")
     public void testExactMismatchGuard_inBounds() {
-        ExactMismatchGuard guard = new ExactMismatchGuard(3);
+        ExactMismatchCountGuard guard = new ExactMismatchCountGuard(3);
 
         boolean shouldEnter1 = guard.shouldEnter(0, 3, null);
 
@@ -19,7 +19,7 @@ public class ExactMismatchGuardTest {
     @Test
     @DisplayName("when the exact mismatch count is exceeded, the guard should block all entries")
     public void testExactMismatchGuard_zeroAllowed() {
-        ExactMismatchGuard guard = new ExactMismatchGuard(0);
+        ExactMismatchCountGuard guard = new ExactMismatchCountGuard(0);
 
         boolean shouldEnter1 = guard.shouldEnter(0, 0, null);
         assertTrue(shouldEnter1);
@@ -31,7 +31,7 @@ public class ExactMismatchGuardTest {
     @Test
     @DisplayName("when the exact mismatch count is exceeded, the guard should block all entries")
     public void testExactMismatchGuard_outOfBoundsLeft() {
-        ExactMismatchGuard guard = new ExactMismatchGuard(3);
+        ExactMismatchCountGuard guard = new ExactMismatchCountGuard(3);
         boolean shouldEnter3 = guard.shouldEnter(0, 4, null);
         assertFalse(shouldEnter3);
     }

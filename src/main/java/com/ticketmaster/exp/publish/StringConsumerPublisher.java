@@ -61,7 +61,7 @@ public class StringConsumerPublisher<T> implements Publisher<T> {
         message = "the control executed successfully but the candidate threw an exception";
         break;
     }
-    stringConsumer.accept(payload.getName() + ": " + message);
+    stringConsumer.accept(payload.getExperimentName() + ": " + message);
   }
 
   @Override

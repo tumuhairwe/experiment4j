@@ -19,7 +19,7 @@ package com.ticketmaster.exp.publish;
 import java.time.Duration;
 
 public interface Measurer<K> {
-  public void measureDuration(K metricKey, Duration duration);
+  void measureDuration(K metricKey, Duration duration);
 
-  public void measureCount(K metricKey, int count);
+  void measureCount(K metricKey, int count);
 }

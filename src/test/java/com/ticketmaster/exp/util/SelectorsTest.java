@@ -16,7 +16,6 @@
 
 package com.ticketmaster.exp.util;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import java.util.Iterator;
 import java.util.function.BooleanSupplier;
@@ -49,11 +48,10 @@ public class SelectorsTest {
   }
 
   @Test
-  @Disabled
   public void testPercentOver100ShouldThrowException() throws Exception {
     IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> Selectors.permille(100)
+            () -> Selectors.percent(100)
     );
     assertEquals("value 100 is not between bounds of 0 (inclusive) and 100 (exclusive)", exception.getMessage());
   }
@@ -124,7 +122,6 @@ public class SelectorsTest {
   }
 
   @Test
-  @Disabled
   public void testPercentOfObjectHashWithMinPercentIsNeverTrue() throws Exception {
     // GIVEN
     int max = 100;

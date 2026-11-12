@@ -30,7 +30,7 @@ import static com.ticketmaster.exp.MatchType.MISMATCH;
 
 public class Result<T> {
 
-  private final String name;
+  private final String experimentName;
   private final Instant timestamp;
   private final TrialResult<T> controlResult;
   private final TrialResult<T> candidateResult;
@@ -44,7 +44,7 @@ public class Result<T> {
     Assert.notNull(timestamp, "timestamp must be non-null");
     Assert.notNull(controlResult, "controlResult must be non-null");
     Assert.notNull(candidateResult, "candidateResult must be non-null");
-    this.name = name;
+    this.experimentName = name;
     this.timestamp = timestamp;
     this.controlResult = controlResult;
     this.candidateResult = candidateResult;
@@ -93,8 +93,8 @@ public class Result<T> {
     return exceptionsSameWhen.apply(controlException, candidateException);
   }
 
-  public String getName() {
-    return name;
+  public String getExperimentName() {
+    return experimentName;
   }
 
   public Instant getTimestamp() {

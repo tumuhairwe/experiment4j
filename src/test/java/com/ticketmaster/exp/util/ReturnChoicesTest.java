@@ -18,6 +18,7 @@ package com.ticketmaster.exp.util;
 
 import com.ticketmaster.exp.Result;
 import com.ticketmaster.exp.TrialResult;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -41,7 +42,8 @@ public class ReturnChoicesTest {
   Instant instant = Instant.EPOCH;
 
   @Test
-  public void testAlwaysControlShouldAlwaysReturnControl() throws Exception {
+  @DisplayName("alwaysControl() should always return control")
+  public void testAlwaysControlShouldAlwaysReturnControl() {
 
     // GIVEN
     Result<String> result = new Result<>("exp", instant, goodControl, goodCandidate);
@@ -55,7 +57,8 @@ public class ReturnChoicesTest {
   }
 
   @Test
-  public void testAlwaysCandidateShouldAlwaysReturnCandidate() throws Exception {
+  @DisplayName("alwaysCandidate() should always return candidate")
+  public void testAlwaysCandidateShouldAlwaysReturnCandidate() {
 
     // GIVEN
     Result<String> result = new Result<>("exp", instant, goodControl, goodCandidate);
@@ -68,7 +71,8 @@ public class ReturnChoicesTest {
   }
 
   @Test
-  public void testFindFastestShouldReturnFastest() throws Exception {
+  @DisplayName("findFastest() should return the fastest trial result")
+  public void testFindFastestShouldReturnFastest(){
 
     // GIVEN
     Result<String> result = new Result<>("exp", instant, goodControl, goodCandidate);
@@ -83,7 +87,8 @@ public class ReturnChoicesTest {
 
 
   @Test
-  public void testFindFastestShouldReturnFastestCandidate() throws Exception {
+  @DisplayName("findFastest() should return the fastest when both candidate and control are good")
+  public void testFindFastestShouldReturnFastestCandidate(){
 
     // GIVEN
     Result<String> result = new Result<>("exp", instant, goodControl, fasterGoodCandidate);
@@ -97,7 +102,8 @@ public class ReturnChoicesTest {
   }
 
   @Test
-  public void testFindBestShouldReturnFastestWhenBothAreGood() throws Exception {
+  @DisplayName("findBest() should return the fastest when both are good. It should return control over candidate if same speed and none of them errored")
+  public void testFindBestShouldReturnFastestWhenBothAreGood() {
 
     // GIVEN
     Result<String> result = new Result<>("exp", instant, goodControl, goodCandidate);

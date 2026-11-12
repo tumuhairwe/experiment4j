@@ -48,7 +48,7 @@ public class ResultTest {
     // THEN
     assertEquals(candidate, result.getCandidateResult());
     assertEquals(control, result.getControlResult());
-    assertEquals("exp", result.getName());
+    assertEquals("exp", result.getExperimentName());
     assertEquals(inst, result.getTimestamp());
 
   }

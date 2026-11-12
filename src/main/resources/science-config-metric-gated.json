@@ -1,0 +1,38 @@
+{
+  "key": "metric-gated-experiment-04",
+  "experimentConfig": {
+    "startDate": "2026-10-01",
+    "endDate": "2026-12-31",
+    "rampUpConfig": {
+      "enabled": true,
+      "strategy": "metric_gated",
+      "incrementPercentage": 5,
+      "checkIntervalMinutes": 60,
+      "gateMetrics": [
+        {
+          "metricName": "candidate_error_rate",
+          "operator": "less_than",
+          "threshold": 0.01
+        },
+        {
+          "metricName": "latency_p95_delta_ms",
+          "operator": "less_than_or_equal",
+          "threshold": 50
+        },
+        {
+          "metricName": "mismatch_percentage",
+          "operator": "less_than",
+          "threshold": 0.005
+        }
+      ]
+    },
+    "entryGuardClassName": "com.ticketmaster.exp.entry.DefaultEntryGuard",
+    "maxSampleSize": 10000000,
+    "initialTrafficPercentage": 1,
+    "maxTrafficPercentage": 100,
+    "comparisonStrategy": {
+      "type": "DEEP_EQUAL",
+      "ignoreFields": ["timestamp", "requestId", "session_id"]
+    }
+  }
+}

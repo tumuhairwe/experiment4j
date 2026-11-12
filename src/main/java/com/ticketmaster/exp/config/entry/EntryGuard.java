@@ -9,12 +9,18 @@ import java.time.LocalDateTime;
  */
 public interface EntryGuard {
 
+    EntryGuard NEVER = (totalRuns, mismatches, dateTime) -> Selectors.NEVER.getAsBoolean();
+    EntryGuard ALWAYS = (totalRuns, mismatches, dateTime) -> Selectors.ALWAYS.getAsBoolean();
+
     boolean shouldEnter(int totalRuns, int mismatches, LocalDateTime dateTime);
     default EntryGuard or(EntryGuard other){
         return (totalRuns, mismatches, dateTime) ->
                 this.shouldEnter(totalRuns, mismatches, dateTime) ||
                         other.shouldEnter(totalRuns, mismatches, dateTime);
     }
-    EntryGuard NEVER = (totalRuns, mismatches, dateTime) -> Selectors.NEVER.getAsBoolean();
-    EntryGuard ALWAYS = (totalRuns, mismatches, dateTime) -> Selectors.ALWAYS.getAsBoolean();
+    default EntryGuard and(EntryGuard other){
+        return (totalRuns, mismatches, dateTime) ->
+                this.shouldEnter(totalRuns, mismatches, dateTime) &&
+                        other.shouldEnter(totalRuns, mismatches, dateTime);
+    }
 }

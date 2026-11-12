@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ticketmaster.exp.MatchType;
 import com.ticketmaster.exp.Result;
 import com.ticketmaster.exp.model.ExperimentRun;
+import com.ticketmaster.exp.publish.InfluxDbPublisher;
 import com.ticketmaster.exp.repository.ExperimentRunRepository;
 
 import java.util.Objects;
@@ -12,19 +13,22 @@ import java.util.Objects;
 public class ExperimentService {
     private final ObjectMapper objectMapper;
     private final ExperimentRunRepository repository;
+    private InfluxDbPublisher influxDbPublisher;
 
     /**
      * Constructs a new ExperimentService.
      * @param repository The repository used for persisting experiment run data.
+     * @param influxDbPublisher
      */
-    public ExperimentService(ExperimentRunRepository repository) {
+    public ExperimentService(ExperimentRunRepository repository, InfluxDbPublisher influxDbPublisher) {
+        this.influxDbPublisher = influxDbPublisher;
         this.objectMapper = new ObjectMapper();
         this.repository = repository;
     }
 
     public <O> void saveResult(Result<O> result) {
         ExperimentRun run = new ExperimentRun();
-        run.setExperimentKey(result.getName());
+        run.setExperimentKey(result.getExperimentName());
         run.setStartTime(result.getTimestamp());
         // set duration
         run.setControlDurationMs(result.getControlResult().getDuration().toMillis());
@@ -44,6 +48,7 @@ public class ExperimentService {
                 result.getCandidateResult().getResult().exception().orElse(null)));
 
         repository.save(run);
+       // influxDbPublisher.publish(run.getMatchType(), result);
     }
 
     private MatchType determineMatchType(Object controlResult, Throwable controlException, Object candidateResult, Throwable candidateException) {

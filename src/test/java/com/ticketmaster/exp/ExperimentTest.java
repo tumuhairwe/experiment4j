@@ -17,6 +17,8 @@
 package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.publish.PrintStreamPublisher;
+import com.ticketmaster.exp.util.ReturnChoices;
+import com.ticketmaster.exp.util.SameWhens;
 import com.ticketmaster.exp.util.Selectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,8 @@ import java.time.Clock;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.ticketmaster.exp.Science.science;
@@ -83,5 +87,39 @@ public class ExperimentTest {
           String result = trial.apply(i);
           assertEquals(controlMap.get(i), result);
       }
+    }
+
+    @Test
+    public void testSimpleExperiment() {
+        // GIVEN
+        String s = "test".chars().sum() + "";
+        Function<String, Integer> controlFunction = str -> str.length();
+        Function<String, Integer> candidateFunction = str -> (int) str.chars().count();
+        Experiment<String, Integer> experiment = new ExperimentBuilder<String, Integer>("string-to-integer-experiment")
+                .control(controlFunction)
+                .candidate(candidateFunction)
+                .returnChoice(ReturnChoices.alwaysControl())
+                .doExperimentWhen(Selectors.always())
+                .sameWhen(SameWhens.classesMatch())
+                .exceptionsSameWhen(SameWhens.messagesMatch())
+                .withExecutorService(Executors.newSingleThreadExecutor())
+                .publishedBy(new PrintStreamPublisher<>())
+                .build();
+
+        Trial<String, Integer> trial = experiment.trial();
+//        int result = trial.apply(s);
+//        Trial<String, Integer> trial = science()
+//                .experiment("simple-experiment-test", () -> experiment)
+//                .publishedBy(new PrintStreamPublisher<>())
+//                .timedBy(Clock.system(ZoneId.systemDefault()))
+//                .doExperimentWhen(Selectors.always())
+//                .trial();
+
+        // WHEN
+        String testInput = "hello";
+        Integer controlResult = trial.apply(testInput);
+
+        // THEN
+        assertEquals(5, controlResult); // "hello" has length 5
     }
 }

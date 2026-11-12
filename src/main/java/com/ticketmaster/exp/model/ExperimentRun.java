@@ -19,21 +19,29 @@ public class ExperimentRun implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "experiment_key")
     private String experimentKey;
+    @Column(name = "start_time")
     private Instant startTime;
+    @Column(name = "control_duration_ms")
     private long controlDurationMs;
+    @Column(name = "candidate_duration_ms")
     private long candidateDurationMs;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 30)
+    @Column(name = "match_type")
     private MatchType matchType;
 
     @Lob
+    @Column(name = "control_value")
     private String controlValue;
     @Lob
+    @Column(name = "candidate_value")
     private String candidateValue;
     @Lob
+    @Column(name = "control_exception_details")
     private String controlExceptionDetails;
     @Lob
+    @Column(name = "candidate_exception_details")
     private String candidateExceptionDetails;
 }

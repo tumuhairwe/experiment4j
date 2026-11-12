@@ -17,6 +17,7 @@
 package com.ticketmaster.exp;
 
 import com.ticketmaster.exp.config.entry.EntryGuard;
+import com.ticketmaster.exp.publish.InfluxDbPublisher;
 import com.ticketmaster.exp.repository.ExperimentRunRepository;
 import com.ticketmaster.exp.service.ExperimentService;
 import com.ticketmaster.exp.util.Assert;
@@ -49,7 +50,7 @@ public class Trial<I, O> implements Function<I, O> {
   private final BiFunction<Exception, Exception, Boolean> exceptionsSameWhen;
 
   private final Publisher<O> publisher;
-  private ExperimentService experimentService = new ExperimentService(new ExperimentRunRepository());
+  private ExperimentService experimentService = new ExperimentService(new ExperimentRunRepository(), new InfluxDbPublisher(null, null));
 
   public Trial(
       String name,

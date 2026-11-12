@@ -89,7 +89,7 @@ public class MeasurerPublisher<K> implements Publisher<K> {
 
   @Override
   public void publish(MatchType matchType, Result<K> payload) {
-    String name = payload.getName();
+    String name = payload.getExperimentName();
     measurer.measureCount(matchCountNamer.name(name, matchType), 1);
     Duration controlDuration = payload.getControlResult().getDuration();
     Duration candidateDuration = payload.getCandidateResult().getDuration();

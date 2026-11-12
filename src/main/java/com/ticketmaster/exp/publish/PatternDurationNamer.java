@@ -16,6 +16,8 @@
 
 package com.ticketmaster.exp.publish;
 
+import com.ticketmaster.exp.TrialType;
+
 import java.util.Locale;
 
 public class PatternDurationNamer implements DurationNamer<String> {
@@ -36,5 +38,9 @@ public class PatternDurationNamer implements DurationNamer<String> {
   public String name(String experimentName, DurationType DurationType) {
     return pattern.formatted(experimentName,
         DurationType.name().toLowerCase(Locale.getDefault()));
+  }
+  public String name(String experimentName, TrialType trialType) {
+    return pattern.formatted(experimentName,
+            trialType.name().toLowerCase(Locale.getDefault()));
   }
 }

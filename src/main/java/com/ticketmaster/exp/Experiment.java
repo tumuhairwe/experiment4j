@@ -20,6 +20,7 @@ import com.ticketmaster.exp.publish.MeasurerPublisher;
 import com.ticketmaster.exp.util.ReturnChoices;
 import com.ticketmaster.exp.util.SameWhens;
 import com.ticketmaster.exp.util.Try;
+import lombok.Data;
 
 import java.time.Clock;
 import java.util.Objects;
@@ -31,13 +32,12 @@ import java.util.function.Function;
 
 import static com.ticketmaster.exp.util.Selectors.always;
 
+@Data
 public class Experiment<I, O> {
   private String name;
   private Function<I, O> control;
   private Function<I, O> candidate;
-  // one of these will exist PER EXPERIMENT, and will have 2 threads associated with
-  // running the trial: one for the candidate, one for the control
-  private ExecutorService executorService = Executors.newFixedThreadPool(2);
+  private ExecutorService executorService = Executors.newFixedThreadPool(2);  // 2 per experiment (control & candidate)
   private Function<Result<O>, Try<O>> returnChoice = ReturnChoices.alwaysControl();
   private BooleanSupplier doExperimentWhen = always();
   private BiFunction<O, O, Boolean> sameWhen = Objects::equals;
@@ -63,9 +63,9 @@ public class Experiment<I, O> {
         this.clock);
   }
 
-  public static <I, O> Experiment<I, O> named(String name) {
-    return new Experiment<I, O>(name);
-  }
+//  public static <I, O> Experiment<I, O> named(String name) {
+//    return new Experiment<I, O>(name);
+//  }
 
   public Experiment(String name) {
     this.name = name;
