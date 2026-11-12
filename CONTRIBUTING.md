@@ -21,7 +21,7 @@ This document provides guidelines for contributing to the project. To see what w
 
 ## Code of Conduct
 
-Everyone participating in this project is expected to be respectful, constructive and welcoming. Harassment or abusive behaviour of any kind will not be tolerated. Please report unacceptable behaviour to the project maintainers.
+This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behaviour to the project maintainer, [@tumuhairwe](https://github.com/tumuhairwe).
 
 ## How Can I Contribute?
 
