@@ -24,6 +24,9 @@ foo.xml
 target/
 log/
 
+##### Gradle #####
+.gradle/
+
 ##### OS X #####
 .DS_Store
 
