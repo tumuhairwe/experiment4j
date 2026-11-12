@@ -1,0 +1,8 @@
+// Optional JPA (Hibernate) implementation of the experiment4j persistence
+// interfaces. Adopters supply their own EntityManagerFactory.
+
+description = 'experiment4j JPA: persist experiment state with JPA/Hibernate'
+
+dependencies {
+    api project(':experiment4j-core')
+}

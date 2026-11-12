@@ -1,0 +1,8 @@
+// Optional plain-JDBC implementation of the experiment4j persistence
+// interfaces. Adopters supply their own DataSource; no extra dependencies.
+
+description = 'experiment4j JDBC: persist experiment state with plain JDBC'
+
+dependencies {
+    api project(':experiment4j-core')
+}
