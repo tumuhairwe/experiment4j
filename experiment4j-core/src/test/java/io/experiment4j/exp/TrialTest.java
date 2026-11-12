@@ -423,4 +423,83 @@ public class TrialTest {
     verify(control, times(5)).apply(anyString());
     assertEquals(2, experiment.getStats().getTotalRuns());
   }
+
+  private Experiment<String, String> experimentWith(Function<String, String> control,
+                                                    Function<String, String> candidate,
+                                                    Publisher<String> publisher) {
+    return Experiment.<String, String>named("errors-" + System.nanoTime())
+        .control(control)
+        .candidate(candidate)
+        .publishedBy(publisher)
+        .timedBy(clock)
+        .doExperimentWhen(Selectors.always());
+  }
+
+  @Test
+  @DisplayName("A candidate Error does not reach the caller and is published as CANDIDATE_EXCEPTION")
+  public void testApply_candidateErrorIsCaptured() {
+    StackOverflowError boom = new StackOverflowError("boom");
+    List<MatchType> published = new ArrayList<>();
+    List<Result<String>> results = new ArrayList<>();
+    Experiment<String, String> experiment = experimentWith(
+        s -> "control",
+        s -> { throw boom; },
+        (matchType, result) -> { published.add(matchType); results.add(result); });
+
+    String output = experiment.trial().apply(ARGS);
+
+    assertEquals("control", output);
+    assertEquals(List.of(MatchType.CANDIDATE_EXCEPTION), published);
+    Exception recorded = results.get(0).getCandidateResult().getTryResult().exception().orElseThrow();
+    CandidateError candidateError = assertInstanceOf(CandidateError.class, recorded);
+    assertSame(boom, candidateError.getCause());
+    assertEquals(1, experiment.getStats().getMismatches());
+  }
+
+  @Test
+  @DisplayName("A candidate Error is thrown as CandidateError only if returnChoice selects the candidate")
+  public void testApply_candidateErrorWhenCandidateIsReturned() {
+    StackOverflowError boom = new StackOverflowError("boom");
+    Experiment<String, String> experiment = experimentWith(s -> "control", s -> { throw boom; }, (m, r) -> { })
+        .returnChoice(ReturnChoices.alwaysCandidate());
+
+    CandidateError thrown = assertThrows(CandidateError.class, () -> experiment.trial().apply(ARGS));
+
+    assertSame(boom, thrown.getCause());
+  }
+
+  @Test
+  @DisplayName("A control Error reaches the caller unchanged while the experiment runs")
+  public void testApply_controlErrorIsRethrownUnchanged() {
+    StackOverflowError boom = new StackOverflowError("control boom");
+    Experiment<String, String> experiment = experimentWith(s -> { throw boom; }, s -> "candidate", (m, r) -> { });
+
+    StackOverflowError thrown = assertThrows(StackOverflowError.class, () -> experiment.trial().apply(ARGS));
+
+    assertSame(boom, thrown);
+  }
+
+  @Test
+  @DisplayName("A control Error reaches the caller unchanged when only the control runs")
+  public void testApply_controlErrorWithoutExperiment() {
+    StackOverflowError boom = new StackOverflowError("control boom");
+    Experiment<String, String> experiment = experimentWith(s -> { throw boom; }, s -> "candidate", (m, r) -> { })
+        .doExperimentWhen(Selectors.never());
+
+    assertSame(boom, assertThrows(StackOverflowError.class, () -> experiment.trial().apply(ARGS)));
+  }
+
+  @Test
+  @DisplayName("Interruption while waiting for the trial keeps the thread's interrupt flag")
+  public void testApply_interruptedKeepsInterruptFlag() {
+    Experiment<String, String> experiment = experimentWith(s -> "control", s -> "candidate", (m, r) -> { });
+
+    Thread.currentThread().interrupt();
+    try {
+      assertThrows(IllegalStateException.class, () -> experiment.trial().apply(ARGS));
+      assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted();  // clear the flag for other tests
+    }
+  }
 }
