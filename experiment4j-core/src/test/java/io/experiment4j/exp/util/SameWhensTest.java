@@ -66,4 +66,26 @@ public class SameWhensTest {
     assertEquals(false, SameWhens.causesMatch()
         .apply(new RuntimeException("a", cause), new RuntimeException("b", new IllegalStateException("other"))));
   }
+
+  @Test
+  public void testMessagesMatchWithMissingMessages() {
+    assertEquals(true, SameWhens.messagesMatch()
+        .apply(new IllegalStateException(), new IllegalStateException()));
+    assertEquals(false, SameWhens.messagesMatch()
+        .apply(new IllegalStateException(), new IllegalStateException("boom")));
+    assertEquals(false, SameWhens.messagesMatch()
+        .apply(new IllegalStateException("boom"), new IllegalStateException()));
+  }
+
+  @Test
+  public void testCausesMatchWithMissingCauses() {
+    Exception cause = new IllegalStateException("root");
+
+    assertEquals(true, SameWhens.causesMatch()
+        .apply(new RuntimeException("a"), new RuntimeException("b")));
+    assertEquals(false, SameWhens.causesMatch()
+        .apply(new RuntimeException("a"), new RuntimeException("b", cause)));
+    assertEquals(false, SameWhens.causesMatch()
+        .apply(new RuntimeException("a", cause), new RuntimeException("b")));
+  }
 }
