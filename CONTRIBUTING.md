@@ -54,6 +54,8 @@ Build the project and run the tests with:
 ./gradlew build
 ```
 
+The build also checks test coverage of `experiment4j-core` with [JaCoCo](https://www.jacoco.org/) and fails if it drops below the minimums in `experiment4j-core/build.gradle`. The coverage report is written to `experiment4j-core/build/reports/jacoco/test/html/index.html`.
+
 ### Pull Requests
 
 We welcome pull requests! To submit a change, please follow these steps:

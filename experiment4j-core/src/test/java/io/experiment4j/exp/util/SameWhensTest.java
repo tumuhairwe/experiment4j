@@ -48,4 +48,22 @@ public class SameWhensTest {
     assertEquals(false, SameWhens.classesMatch().apply(null, 1));
     assertEquals(false, SameWhens.classesMatch().apply("foo", null));
   }
+
+  @Test
+  public void testMessagesMatch() {
+    assertEquals(true, SameWhens.messagesMatch()
+        .apply(new IllegalStateException("boom"), new IllegalArgumentException("boom")));
+    assertEquals(false, SameWhens.messagesMatch()
+        .apply(new IllegalStateException("boom"), new IllegalStateException("bang")));
+  }
+
+  @Test
+  public void testCausesMatch() {
+    Exception cause = new IllegalStateException("root");
+
+    assertEquals(true, SameWhens.causesMatch()
+        .apply(new RuntimeException("a", cause), new RuntimeException("b", cause)));
+    assertEquals(false, SameWhens.causesMatch()
+        .apply(new RuntimeException("a", cause), new RuntimeException("b", new IllegalStateException("other"))));
+  }
 }

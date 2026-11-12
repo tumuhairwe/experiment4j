@@ -3,6 +3,7 @@
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
+    apply plugin: 'jacoco'
 
     group = 'io.tumuhairwe'
     version = '2.0.0-SNAPSHOT'
@@ -38,6 +39,18 @@ subprojects {
 
     tasks.named('test') {
         useJUnitPlatform()
+        finalizedBy tasks.named('jacocoTestReport')
+    }
+
+    jacoco {
+        toolVersion = '0.8.13'
+    }
+
+    tasks.named('jacocoTestReport') {
+        reports {
+            xml.required = true    // for CI tools
+            html.required = true   // build/reports/jacoco/test/html/index.html
+        }
     }
 
     publishing {
