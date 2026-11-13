@@ -20,7 +20,7 @@ subprojects {
         }
     }
 
-    def junitVersion = '5.13.4'
+    ext.junitVersion = '5.13.4'
     dependencies {
         testImplementation platform("org.junit:junit-bom:${junitVersion}")
         testImplementation 'org.junit.jupiter:junit-jupiter'
