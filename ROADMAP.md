@@ -84,7 +84,8 @@ Adopters supply their own `DataSource` or `EntityManagerFactory`; the library do
 - [x] Restructure into `experiment4j-core`, `experiment4j-jpa` and `experiment4j-jdbc` modules.
 - [x] Persistence interfaces in core for experiment definitions and rollout state (with an audit trail of transitions and optimistic locking), with in-memory defaults and reusable contract tests.
 - [ ] Persistence interfaces for run results and per-minute metrics.
-- [ ] JPA (Hibernate) and plain-JDBC persistence modules, with versioned SQL schema scripts.
+- [x] Plain-JDBC persistence module (`experiment4j-jdbc`) with an SQL schema script.
+- [ ] JPA (Hibernate) persistence module (`experiment4j-jpa`).
 - [ ] Write run results asynchronously and in batches, off the request thread.
 - [ ] Release v0.2.0.
 
