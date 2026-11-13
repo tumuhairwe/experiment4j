@@ -190,12 +190,28 @@ All classes live under the `io.experiment4j.exp` package; artifacts are publishe
 | :----- | :------ |
 | `experiment4j-core` | The experimentation engine. No framework or persistence dependencies. |
 | `experiment4j-jpa` | Optional JPA (Hibernate) persistence of experiment state. _Not yet implemented._ |
-| `experiment4j-jdbc` | Optional plain-JDBC persistence of experiment state. _Not yet implemented._ |
+| `experiment4j-jdbc` | Optional plain-JDBC persistence of experiment definitions and rollout state. No dependencies beyond the JDK. |
 
 ```groovy
 dependencies {
     implementation 'io.tumuhairwe:experiment4j-core:2.0.0-SNAPSHOT'
 }
+```
+
+### Persisting experiment state
+
+The core module defines the stores (`io.experiment4j.exp.store`) with in-memory defaults. To share state across instances and restarts, use the JDBC stores with your own `DataSource`:
+
+```java
+    // once: create the tables (or copy io/experiment4j/exp/jdbc/schema.sql into your migrations)
+    JdbcSchema.createTables(dataSource);
+
+    ExperimentStateStore states = new JdbcExperimentStateStore(dataSource);
+    ExperimentState state = states.createIfAbsent(ExperimentState.initial("my experiment", 0, Instant.now()));
+
+    // move to shadow mode on 5% of traffic; fails with StaleStateException if another instance changed it first
+    ExperimentState next = state.withStatus(ExperimentStatus.SHADOW, 5, Instant.now());
+    states.update(state, next, StateTransition.between(state, next, TransitionReason.MANUAL, "alice", "kick-off"));
 ```
 
 Requirements & Building
